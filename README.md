@@ -56,10 +56,7 @@ This builder works as follows:
     ```console
     > dart pub run changelog_bubbler
     ```
-    1. Hosted - Direct
-    1. Hosted - Transitive
-    1. pub.dev - Direct
-    1. pub.dev - Transitive
+
 1. `CHANGELOG_BUBBLED.g.md` will be generated with content:
 ># Bubbled Changelog
 >
@@ -90,6 +87,21 @@ See a full example output here: [Example App Output][example_app_output]
 
 ## Customization
 
+### Previous Ref
+By default the changelog will be generated based on a diff between the current git state and the previous tag.
+
+To specify your own ref, pass a flag named `previous-ref` with your desired git ref.
+
+example:
+```
+dart pub run changelog_bubbler --previous-ref 8762db
+```
+example:
+```
+dart pub run changelog_bubbler --previous-ref v2.0.0
+```
+
+### Output File
 To change the path of the generated file, pass a flag named `output`.
 
 example:
