@@ -1,0 +1,13 @@
+.github/
+.idea/
+.packages
+.vscode/
+analysis_options.yaml
+build/
+CONTRIBUTING.md
+coverage_badge.svg
+coverage/
+dart_test.yaml
+example/
+pubspec.lock
+test/
