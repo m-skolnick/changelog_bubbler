@@ -85,7 +85,7 @@ This builder works as follows:
 
 See a full example output here: [Example App Output][example_app_output]
 
-## Customization
+## Advanced
 
 ### Previous Ref
 By default the changelog will be generated based on a diff between the current git state and the previous tag.
