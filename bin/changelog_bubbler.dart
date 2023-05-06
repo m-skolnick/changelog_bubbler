@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:changelog_bubbler/src/main.dart';
+import 'package:changelog_bubbler/src/changelog_bubbler.dart';
 
 Future<void> main(List<String> args) async {
   await _flushThenExit(await ChangelogBubbler().run(args));
