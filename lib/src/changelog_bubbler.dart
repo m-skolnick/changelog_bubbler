@@ -55,7 +55,6 @@ class ChangelogBubbler extends CommandRunner<int> {
       print(e.usage);
       return ExitCode.usage.code;
     } catch (e) {
-      print('Unknown Exception');
       print('');
       print(e);
 
@@ -83,9 +82,13 @@ class ChangelogBubbler extends CommandRunner<int> {
     }
 
     print('Checking to make sure git status is clean');
-    await shell.run(
-      'git diff --exit-code',
-      workingDir: workingDir,
-    );
+    try {
+      await shell.run(
+        'git diff --exit-code --quiet',
+        workingDir: workingDir,
+      );
+    } catch (e) {
+      throw (Exception('Changes found in git repository. Please save changes and try again'));
+    }
   }
 }
