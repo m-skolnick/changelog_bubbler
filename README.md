@@ -85,6 +85,17 @@ This builder works as follows:
 
 See a full example output here: [Example App Output][example_app_output]
 
+**Note**
+If you are using this in Github Actions, you will need to set the fetch-depth of the checkout command to "0" so that tags are fetched
+
+```
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Fetch depth 0 so that tags are fetched
+          fetch-depth: 0
+```
+
 ## Advanced
 
 ### Previous Ref

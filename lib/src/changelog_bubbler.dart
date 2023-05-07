@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:changelog_bubbler/src/bubbler_shell.dart';
+import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/package_comparer.dart';
 import 'package:changelog_bubbler/src/pubspec_lock_parser.dart';
 import 'package:changelog_bubbler/src/repository_preparer.dart';
@@ -22,19 +24,27 @@ class ChangelogBubbler extends CommandRunner<int> {
       'output',
       help: 'The output file',
     );
+    registerGlobalDependencies();
   }
 
   @override
   Future<int> run(Iterable<String> args) async {
-    final tempDir = Directory(p.join(workingDir, 'temp_changelog_bubbler_dir'))..createSync();
+    final tmpDir = Directory.systemTemp.createTempSync('temp_changelog_bubbler_dir');
     try {
       // Try parsing the args just to see if it throws an exception
       parse(args);
 
-      validateWorkingDir();
-      await prepareTempRepo(tmpDir: tempDir.path);
-      final previousDependencyList = await getDependencyList(repoPath: tempDir.path);
-      final currentDependencyList = await getDependencyList(repoPath: Directory.current.path);
+      // Ensure the working directory is a dart git repo with no unstaged changes
+      await validateWorkingDir();
+
+      // Copy the current repo to the tempDir
+      await copyPath(workingDir, tmpDir.path);
+
+      // Check out
+      await prepareTempRepo(repoDir: tmpDir.path);
+
+      final previousDependencyList = await getDependencyList(repoPath: tmpDir.path);
+      final currentDependencyList = await getDependencyList(repoPath: workingDir);
       final diff = buildDiff(
         previous: previousDependencyList,
         current: currentDependencyList,
@@ -51,13 +61,15 @@ class ChangelogBubbler extends CommandRunner<int> {
 
       return ExitCode.unavailable.code;
     } finally {
-      tempDir.deleteSync(recursive: true);
+      tmpDir.deleteSync(recursive: true);
     }
 
     return ExitCode.success.code;
   }
 
-  void validateWorkingDir() {
+  Future<void> validateWorkingDir() async {
+    final shell = getDep<BubblerShell>();
+
     // Check if current dir is a dart project
     // Error out of it is not a git dir and does not contain a pubspec.yaml
     // We don't want users to accidentally run this in a folder that doesn't contain a flutter project
@@ -69,5 +81,11 @@ class ChangelogBubbler extends CommandRunner<int> {
     if (!isGitDir) {
       throw (Exception('.git folder found. Program must be run from a git repository'));
     }
+
+    print('Checking to make sure git status is clean');
+    await shell.run(
+      'git diff --exit-code',
+      workingDir: workingDir,
+    );
   }
 }
