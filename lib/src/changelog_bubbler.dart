@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:changelog_bubbler/src/bubbler_shell.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/package_comparer.dart';
 import 'package:changelog_bubbler/src/pubspec_lock_parser.dart';
@@ -32,7 +31,7 @@ class ChangelogBubbler extends CommandRunner<int> {
     final tmpDir = Directory.systemTemp.createTempSync('temp_changelog_bubbler_dir');
     try {
       // Try parsing the args just to see if it throws an exception
-      parse(args);
+      final argResults = parse(args);
 
       // Ensure the working directory is a dart git repo with no unstaged changes
       await validateWorkingDir();
@@ -40,8 +39,11 @@ class ChangelogBubbler extends CommandRunner<int> {
       // Copy the current repo to the tempDir
       await copyPath(workingDir, tmpDir.path);
 
-      // Check out
-      await prepareTempRepo(repoDir: tmpDir.path);
+      // Copies current repo, clear local changes, and check out state to compare
+      await RepositoryPreparer(
+        repoDir: tmpDir.path,
+        passedRef: argResults['previous-ref'] as String?,
+      ).prepareTempRepo();
 
       final previousDependencyList = await getDependencyList(repoPath: tmpDir.path);
       final currentDependencyList = await getDependencyList(repoPath: workingDir);
@@ -67,8 +69,6 @@ class ChangelogBubbler extends CommandRunner<int> {
   }
 
   Future<void> validateWorkingDir() async {
-    final shell = getDep<BubblerShell>();
-
     // Check if current dir is a dart project
     // Error out of it is not a git dir and does not contain a pubspec.yaml
     // We don't want users to accidentally run this in a folder that doesn't contain a flutter project
@@ -79,16 +79,6 @@ class ChangelogBubbler extends CommandRunner<int> {
     final isGitDir = Directory(p.join(workingDir, '.git')).existsSync();
     if (!isGitDir) {
       throw (Exception('.git folder found. Program must be run from a git repository'));
-    }
-
-    print('Checking to make sure git status is clean');
-    try {
-      await shell.run(
-        'git diff --exit-code --quiet',
-        workingDir: workingDir,
-      );
-    } catch (e) {
-      throw (Exception('Changes found in git repository. Please save changes and try again'));
     }
   }
 }
