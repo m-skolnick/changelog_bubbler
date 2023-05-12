@@ -4,11 +4,11 @@ import 'package:changelog_bubbler/src/bubbler_shell.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 
 class RepositoryPreparer {
-  final String repoDir;
+  final String repoPath;
   final String? passedRef;
 
   RepositoryPreparer({
-    required this.repoDir,
+    required this.repoPath,
     this.passedRef,
   });
 
@@ -27,15 +27,15 @@ class RepositoryPreparer {
 
     await shell.run(
       'git clean -dfx',
-      workingDir: repoDir,
+      workingDir: repoPath,
     );
     await shell.run(
       'git add --all',
-      workingDir: repoDir,
+      workingDir: repoPath,
     );
     await shell.run(
       'git reset --hard',
-      workingDir: repoDir,
+      workingDir: repoPath,
     );
   }
 
@@ -45,7 +45,7 @@ class RepositoryPreparer {
 
     await shell.run(
       'git checkout $ref',
-      workingDir: repoDir,
+      workingDir: repoPath,
     );
   }
 
@@ -55,7 +55,7 @@ class RepositoryPreparer {
     try {
       final result = await shell.run(
         'git describe --tags --abbrev=0 HEAD^',
-        workingDir: repoDir,
+        workingDir: repoPath,
       );
       final outText = result.outText.trim();
 
@@ -74,7 +74,7 @@ class RepositoryPreparer {
 
     final result = await shell.run(
       'git rev-parse --short HEAD^',
-      workingDir: repoDir,
+      workingDir: repoPath,
     );
     final outText = result.outText.trim();
 

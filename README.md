@@ -30,8 +30,8 @@ This builder works as follows:
     1. Build dep list based on pubspec lock and pub_cache
     1. Store path to pub_cache in dependency class for later reference
 1. Build release notes
-    1. Hosted - Direct
-    1. Hosted - Transitive
+    1. Private Hosted - Direct
+    1. Private Hosted - Transitive
     1. pub.dev - Direct
     1. pub.dev - Transitive
 1. Release note section building

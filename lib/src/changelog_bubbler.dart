@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:changelog_bubbler/src/diff_builder.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
-import 'package:changelog_bubbler/src/package_comparer.dart';
-import 'package:changelog_bubbler/src/pubspec_lock_parser.dart';
 import 'package:changelog_bubbler/src/repository_preparer.dart';
 import 'package:io/io.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
 class ChangelogBubbler extends CommandRunner<int> {
@@ -28,29 +28,29 @@ class ChangelogBubbler extends CommandRunner<int> {
 
   @override
   Future<int> run(Iterable<String> args) async {
-    final tmpDir = Directory.systemTemp.createTempSync('temp_changelog_bubbler_dir');
+    final tempDir = Directory.systemTemp.createTempSync('temp_changelog_bubbler_dir');
     try {
-      // Try parsing the args just to see if it throws an exception
+      // Parsing the args in the try/catch to see if it throws an exception
       final argResults = parse(args);
 
       // Ensure the working directory is a dart git repo with no unstaged changes
       await validateWorkingDir();
 
       // Copy the current repo to the tempDir
-      await copyPath(workingDir, tmpDir.path);
+      await copyPath(workingDir, tempDir.path);
 
       // Copies current repo, clear local changes, and check out state to compare
       await RepositoryPreparer(
-        repoDir: tmpDir.path,
+        repoPath: tempDir.path,
         passedRef: argResults['previous-ref'] as String?,
       ).prepareTempRepo();
 
-      final previousDependencyList = await getDependencyList(repoPath: tmpDir.path);
-      final currentDependencyList = await getDependencyList(repoPath: workingDir);
-      final diff = buildDiff(
-        previous: previousDependencyList,
-        current: currentDependencyList,
-      );
+      final diff = DiffBuilder(
+        repoInCurrentState: workingDir,
+        repoInPreviousState: tempDir.path,
+      ).buildDiff();
+
+      // write the diff to a file
     } on UsageException catch (e) {
       print(e.message);
       print('');
@@ -62,12 +62,13 @@ class ChangelogBubbler extends CommandRunner<int> {
 
       return ExitCode.unavailable.code;
     } finally {
-      tmpDir.deleteSync(recursive: true);
+      tempDir.deleteSync(recursive: true);
     }
 
     return ExitCode.success.code;
   }
 
+  @visibleForTesting
   Future<void> validateWorkingDir() async {
     // Check if current dir is a dart project
     // Error out of it is not a git dir and does not contain a pubspec.yaml

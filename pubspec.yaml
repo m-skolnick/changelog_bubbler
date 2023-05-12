@@ -16,7 +16,7 @@ dependencies:
   process_run: ^0.13.0
   pub_semver: ^2.0.0
   pubspec_lock_parse: ^2.2.0
-  yaml: ^3.1.0
+  # yaml: ^3.1.0
 
 dev_dependencies:
   lints: ^2.0.0
