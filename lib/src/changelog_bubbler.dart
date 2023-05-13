@@ -52,6 +52,7 @@ class ChangelogBubbler extends CommandRunner<int> {
       final argResults = parse(args);
       final prevousRefArg = argResults['previous-ref'] as String?;
       final changelogName = argResults['changelog-name'] as String;
+      final outputFile = argResults['output'] as String;
       final shouldIncludeDevArg = argResults['dev'] as bool;
       final shouldIncludeTransitiveArg = argResults['transitive'] as bool;
 
@@ -86,9 +87,7 @@ class ChangelogBubbler extends CommandRunner<int> {
         changelogName: changelogName,
       ).buildDiff();
 
-      print('here is the diff');
-      print(diff);
-      // TODO write the diff to a file
+      File(p.join(workingDir, outputFile)).writeAsStringSync(diff);
     } on UsageException catch (e) {
       print(e.message);
       print('');

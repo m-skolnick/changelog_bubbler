@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:changelog_bubbler/src/dependency_parser.dart';
-import 'package:changelog_bubbler/src/package_extensions.dart';
+import 'package:changelog_bubbler/src/dependency_type.dart';
+import 'package:changelog_bubbler/src/package_wrapper.dart';
 import 'package:collection/collection.dart';
-import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
 import 'package:path/path.dart' as p;
 
 class DiffBuilder {
@@ -55,26 +55,20 @@ class DiffBuilder {
     // Gather the unique urls for hosted dependencies
     final allDeps = {...parserCurrent.dependencies, ...parserPrevious.dependencies}.entries.toList();
     allDeps.sort((a, b) => a.key.compareTo(b.key));
-    Set<String> uniqueUrls = {};
-    Set<String> uniqueDependencyTypes = {};
-    for (final entry in allDeps) {
-      uniqueDependencyTypes.add(entry.value.dependency);
-      final url = entry.value.trimmedUrl;
-      if (url != null) {
-        uniqueUrls.add(url);
-      }
-    }
+    final urlSet = allDeps.map((e) => e.value.trimmedUrl).whereNotNull().toSet();
 
     final groupsBySection = StringBuffer();
-    for (final groupUrl in uniqueUrls) {
+    for (final groupUrl in urlSet) {
       final depsInGroup = allDeps.where((e) => e.value.trimmedUrl == groupUrl);
       if (depsInGroup.isEmpty) {
         continue;
       }
       final groupBuffer = StringBuffer();
-      for (final dependencyType in uniqueDependencyTypes) {
-        final depsOfDepType = depsInGroup.where((e) => e.value.dependency == dependencyType);
-
+      for (final dependencyType in DependencyType.sorted) {
+        final depsOfDepType = depsInGroup.where((e) => e.value.dependencyType == dependencyType);
+        if (depsOfDepType.isEmpty) {
+          continue;
+        }
         for (final dep in depsOfDepType) {
           final previousDep = parserPrevious.dependencies.entries.firstWhereOrNull((e) => e.key == dep.key);
           final currentDep = parserCurrent.dependencies.entries.firstWhereOrNull((e) => e.key == dep.key);
@@ -96,7 +90,7 @@ class DiffBuilder {
   }
 
   String _getMainAppSection() {
-    return _depDiffTemplate
+    return _mainPackageDiffTemplate
         .replaceFirst(
           '{{package_name}}',
           parserPrevious.pubspec.name,
@@ -119,28 +113,28 @@ class DiffBuilder {
   }
 
   String _getPackageDiff({
-    required MapEntry<String, Package>? previous,
-    required MapEntry<String, Package>? current,
+    required MapEntry<String, PackageWrapper>? previous,
+    required MapEntry<String, PackageWrapper>? current,
   }) {
     assert(previous != null || current != null, 'Either previous or current must not be null');
     if (previous == null) {
       return _depAddedOrRemovedTemplate
           .replaceFirst('{{package_name}}', current!.key)
-          .replaceFirst('{{dependency_type}}', current.value.dependency)
+          .replaceFirst('{{dependency_type}}', current.value.dependencyType.name)
           .replaceFirst('{{change_type}}', 'ADDED');
     }
     if (current == null) {
       return _depAddedOrRemovedTemplate
           .replaceFirst('{{package_name}}', previous.key)
-          .replaceFirst('{{dependency_type}}', previous.value.dependency)
+          .replaceFirst('{{dependency_type}}', previous.value.dependencyType.name)
           .replaceFirst('{{change_type}}', 'REMOVED');
     }
 
     return _depDiffTemplate
         .replaceFirst('{{package_name}}', previous.key)
-        .replaceFirst('{{previous_version}}', previous.value.version.toString())
-        .replaceFirst('{{current_version}}', current.value.version.toString())
-        .replaceFirst('{{dependency_type}}', current.value.dependency)
+        .replaceFirst('{{previous_version}}', previous.value.package.version.toString())
+        .replaceFirst('{{current_version}}', current.value.package.version.toString())
+        .replaceFirst('{{dependency_type}}', current.value.dependencyType.name)
         .replaceFirst(
           '{{changelog_diff}}',
           _getChangelogDiff(
@@ -153,24 +147,36 @@ class DiffBuilder {
   static const _fullOutputTemplate = '''
 # Bubbled Changelog
 
+## This app
 {{main_app}}
 
+## Changed Dependencies
 {{dependency_groups}}
 ''';
 
   static const _groupTemplate = '''
-## {{group_name}}
+### {{group_name}}
 
 {{packages_in_group}}
 ''';
 
-  static const _depDiffTemplate = '''
-{{package_name}} | {{dependency_type}} | {{previous_version}} -> {{current_version}}
+  static const _mainPackageDiffTemplate = '''
+{{package_name}} | {{previous_version}} -> {{current_version}}
 
+<div markdown="1" style="padding-left: 2em; padding-bottom: 1em;">
 {{changelog_diff}}
+</div>
+
+''';
+  static const _depDiffTemplate = '''
+{{package_name}} | {{previous_version}} -> {{current_version}} | {{dependency_type}}
+
+<div markdown="1" style="padding-left: 2em; padding-bottom: 1em;">
+{{changelog_diff}}
+</div>
 
 ''';
   static const _depAddedOrRemovedTemplate = '''
-{{package_name}} | {{dependency_type}} | {{change_type}}
+{{package_name}} | {{change_type}} | {{dependency_type}}
 ''';
 }

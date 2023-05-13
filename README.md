@@ -58,30 +58,31 @@ This builder works as follows:
     ```
 
 1. `CHANGELOG_BUBBLED.g.md` will be generated with content:
-># Bubbled Changelog
->
->Example app
->
->## Hosted - Direct
->
->my_app_core 1.0.0 -> 1.1.0
->
->\# 1.1.0
->- chore: something changed
->
->## pub.dev - Transitive
->
->analyzer 1.0.0 -> 2.0.0
->
->\# 2.0.0
->- chore: something changed
->
->\# 1.3.0
->- chore: something changed
->
->\# 1.1.0
->- chore: something changed
->
+```
+# Bubbled Changelog
+
+Example app
+
+## Hosted - Direct
+
+my_app_core 1.0.0 - 1.1.0
+
+# 1.1.0
+- chore: something changed
+
+## pub.dev - Transitive
+
+analyzer 1.0.0 - 2.0.0
+
+\# 2.0.0
+- chore: something changed
+
+\# 1.3.0
+- chore: something changed
+
+\# 1.1.0
+- chore: something changed
+```
 
 See a full example output here: [Example App Output][example_app_output]
 
