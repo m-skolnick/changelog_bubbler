@@ -86,6 +86,8 @@ class ChangelogBubbler extends CommandRunner<int> {
         changelogName: changelogName,
       ).buildDiff();
 
+      print('here is the diff');
+      print(diff);
       // TODO write the diff to a file
     } on UsageException catch (e) {
       print(e.message);

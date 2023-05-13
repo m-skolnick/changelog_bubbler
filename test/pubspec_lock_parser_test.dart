@@ -1,3 +1,23 @@
+final pubspec_lock_section = '''
+  checked_yaml:
+    dependency: transitive
+    description:
+      name: checked_yaml
+      sha256: feb6bed21949061731a7a75fc5d2aa727cf160b91af9a3e464c5e3a32e28b5ff
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
+  cli_readme_builder:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: a890fc3115588378214962e59e7d67058032a0f1
+      url: "https://github.com/m-skolnick/cli_readme_builder.git"
+    source: git
+    version: "1.6.0"
+''';
+
 final mockDependencyMap = '''
 {dependency: transitive, description: {name: _fe_analyzer_shared, url: https://pub.dev}, source: hosted, version: 59.0.0}
 {dependency: transitive, description: {name: analyzer, url: https://pub.dev}, source: hosted, version: 5.11.1}
