@@ -17,9 +17,11 @@ class RepositoryPreparer {
   ///   a. Search for previous tag
   ///   b. If previous tag is null -> Get previous commit
   /// *. Checks out ref
+  /// *. Gets dependencies
   Future<void> prepareTempRepo() async {
     await _cleanGitState();
     await _checkOutRef();
+    await _getDependencies();
   }
 
   Future<void> _cleanGitState() async {
@@ -45,6 +47,15 @@ class RepositoryPreparer {
 
     await shell.run(
       'git checkout $ref',
+      workingDir: repoPath,
+    );
+  }
+
+  Future<void> _getDependencies() async {
+    final shell = getDep<BubblerShell>();
+
+    await shell.run(
+      'dart pub get',
       workingDir: repoPath,
     );
   }

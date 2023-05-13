@@ -45,9 +45,9 @@ class ChangelogBubbler extends CommandRunner<int> {
         passedRef: argResults['previous-ref'] as String?,
       ).prepareTempRepo();
 
-      final diff = DiffBuilder(
-        repoInCurrentState: workingDir,
-        repoInPreviousState: tempDir.path,
+      final diff = await DiffBuilder(
+        repoPathCurrentState: workingDir,
+        repoPathPreviousState: tempDir.path,
       ).buildDiff();
 
       // write the diff to a file
