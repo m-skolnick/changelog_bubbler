@@ -13,16 +13,17 @@ class DiffBuilder {
   /// Holds the parsed dependencies for the repo in the previous state
   final DependencyParser parserPrevious;
 
+  /// The name of the changelog we should be searching for
+  ///   This can be a value passed by the user. Check CLI input for defaults.
+  final String changelogName;
+
   DiffBuilder({
     required this.parserPrevious,
     required this.parserCurrent,
+    required this.changelogName,
   });
 
   Future<String> buildDiff() async {
-    return '';
-  }
-
-  String buildOutput() {
     return _fullOutputTemplate.replaceFirst(
       '{{main_app}}',
       _getMainAppSection(),
@@ -36,8 +37,8 @@ class DiffBuilder {
     required String previousPath,
     required String currentPath,
   }) {
-    final previousChangelog = File(p.join(previousPath, 'CHANGELOG.md')).readAsStringSync();
-    final currentChangelog = File(p.join(currentPath, 'CHANGELOG.md')).readAsStringSync();
+    final previousChangelog = File(p.join(previousPath, changelogName)).readAsStringSync();
+    final currentChangelog = File(p.join(currentPath, changelogName)).readAsStringSync();
 
     return currentChangelog.replaceFirst(previousChangelog, '');
   }

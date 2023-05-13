@@ -25,6 +25,11 @@ class ChangelogBubbler extends CommandRunner<int> {
       help: 'The output file',
       defaultsTo: 'CHANGELOG_BUBBLED.g.md',
     );
+    argParser.addOption(
+      'changelog-name',
+      help: 'The name of the changelog to search for',
+      defaultsTo: 'CHANGELOG.md',
+    );
     argParser.addFlag(
       'dev',
       help: 'Include dev dependencies in output',
@@ -46,6 +51,7 @@ class ChangelogBubbler extends CommandRunner<int> {
       // Parsing the args in the try/catch to see if it throws an exception
       final argResults = parse(args);
       final prevousRefArg = argResults['previous-ref'] as String?;
+      final changelogName = argResults['changelog-name'] as String;
       final shouldIncludeDevArg = argResults['dev'] as bool;
       final shouldIncludeTransitiveArg = argResults['transitive'] as bool;
 
@@ -77,6 +83,7 @@ class ChangelogBubbler extends CommandRunner<int> {
       final diff = await DiffBuilder(
         parserPrevious: parserPrevious,
         parserCurrent: parserCurrent,
+        changelogName: changelogName,
       ).buildDiff();
 
       // TODO write the diff to a file
