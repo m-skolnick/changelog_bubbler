@@ -4,22 +4,27 @@ import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:path/path.dart' as p;
 import 'package:process_run/process_run.dart';
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
+import 'package:pubspec_parse/pubspec_parse.dart';
 
 class DependencyParser {
   late final Map<String, Package> dependencies;
+  late final Pubspec pubspec;
   final String repoPath;
 
   final _shell = getDep<BubblerShell>();
 
-  DependencyParser({required this.repoPath});
+  DependencyParser({required this.repoPath}) {
+    final pubspecString = File(p.join(repoPath, 'pubspec.yaml')).readAsStringSync();
+    pubspec = Pubspec.parse(pubspecString);
+  }
 
   void parseDependencies({
     required bool includeDev,
     required bool includeTransitive,
   }) {
     // Get all of the dependencies from the pubspec.lock
-    final lockStr = File(p.join(repoPath, 'pubspec.lock')).readAsStringSync();
-    final lockfile = PubspecLock.parse(lockStr);
+    final lockString = File(p.join(repoPath, 'pubspec.lock')).readAsStringSync();
+    final lockfile = PubspecLock.parse(lockString);
     Map<String, Package> filteredDeps = lockfile.packages;
 
     if (!includeDev) {
