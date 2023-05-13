@@ -47,7 +47,7 @@ class ChangelogBubbler extends CommandRunner<int> {
       final argResults = parse(args);
       final prevousRefArg = argResults['previous-ref'] as String?;
       final shouldIncludeDevArg = argResults['dev'] as bool;
-      final shouldIncludeTransitiveArg = argResults['transitive'] as String?;
+      final shouldIncludeTransitiveArg = argResults['transitive'] as bool;
 
       // Ensure the working directory is a dart git repo
       await validateWorkingDir();
@@ -64,10 +64,20 @@ class ChangelogBubbler extends CommandRunner<int> {
       // Parse dependencies from pubspec.lock
       final parserPrevious = DependencyParser(repoPath: tempDir.path);
       final parserCurrent = DependencyParser(repoPath: workingDir);
-      await parserPrevious.parseDependencies();
-      await parserCurrent.parseDependencies();
+      parserPrevious.parseDependencies(
+        includeTransitive: shouldIncludeTransitiveArg,
+        includeDev: shouldIncludeDevArg,
+      );
+      parserCurrent.parseDependencies(
+        includeTransitive: shouldIncludeTransitiveArg,
+        includeDev: shouldIncludeDevArg,
+      );
 
-      final diff = await DiffBuilder(parserPrevious: parserPrevious, parserCurrent: parserCurrent).buildDiff();
+      // Build the diff
+      final diff = await DiffBuilder(
+        parserPrevious: parserPrevious,
+        parserCurrent: parserCurrent,
+      ).buildDiff();
 
       // TODO write the diff to a file
     } on UsageException catch (e) {

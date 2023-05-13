@@ -6,24 +6,36 @@ import 'package:process_run/process_run.dart';
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
 
 class DependencyParser {
-  late final List<String> hostedUrls;
-  late final Map<String, Package> allPackages;
+  late final Map<String, Package> dependencies;
+  final String repoPath;
 
   final _shell = getDep<BubblerShell>();
-  final String repoPath;
 
   DependencyParser({required this.repoPath});
 
-  Future<void> parseDependencies() async {
+  void parseDependencies({
+    required bool includeDev,
+    required bool includeTransitive,
+  }) {
     // Get all of the dependencies from the pubspec.lock
     final lockStr = File(p.join(repoPath, 'pubspec.lock')).readAsStringSync();
     final lockfile = PubspecLock.parse(lockStr);
+    Map<String, Package> filteredDeps = lockfile.packages;
 
-    // Run a `flutter pub deps --no-dev`
-    //  We do this so we can figure out which transitive dependencies
-    //  came from main dependencies rather than dev dependencies
-    //  The pubspec.lock does not distinguish "transitive dev" from "transitive main"
+    if (!includeDev) {
+      filteredDeps = _filterDevDeps(filteredDeps);
+    }
+    if (!includeTransitive) {
+      filteredDeps = _filterTransitiveDeps(filteredDeps);
+    }
+    dependencies = filteredDeps;
+  }
 
+  ///  The pubspec.lock does not distinguish "transitive dev" from "transitive main"
+  ///  So to figure out which transitive dependencies
+  ///  came from dev dependencies rather than main dependencies
+  ///    we run a `flutter pub deps --no-dev`
+  Map<String, Package> _filterDevDeps(Map<String, Package> deps) {
     // Using runSync because for some reason the process_run was crashing
     // when running this command
     final result = _shell.runSync(
@@ -37,7 +49,11 @@ class DependencyParser {
     //  we are actually referring to the entry. We don't want to falsely
     //  match on entry names that are part of a larger name
     // eg: yaml => checked_yaml
-    final filteredEntries = lockfile.packages.entries.where((e) => outText.contains(' ${e.key} '));
-    allPackages = Map.fromEntries(filteredEntries);
+    final filteredEntries = deps.entries.where((e) => outText.contains(' ${e.key} '));
+    return Map.fromEntries(filteredEntries);
+  }
+
+  Map<String, Package> _filterTransitiveDeps(Map<String, Package> deps) {
+    return deps..removeWhere((key, value) => value.dependency == 'transitive');
   }
 }

@@ -1,4 +1,5 @@
 import 'package:changelog_bubbler/src/dependency_parser.dart';
+import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
 
 class DiffBuilder {
   /// Holds the parsed dependencies for the repo in the current state
@@ -13,12 +14,15 @@ class DiffBuilder {
   });
 
   Future<String> buildDiff() async {
-    await parserPrevious.parseDependencies();
-    await parserCurrent.parseDependencies();
-
-    // final changedDeps = parserPrevious.allPackages.entries.where((e){
-    //   // parserCurrent.
-    // });
+    // We will build the diff by section
+    // Each section will be for a separate hosted location
+    // Gather the unique urls for hosted dependencies
+    final allDeps = {...parserCurrent.dependencies, ...parserPrevious.dependencies};
+    final hostedDeps = Map.fromEntries(allDeps.entries.where((e) => e.value.source == PackageSource.hosted));
+    final uniqueHostedUrls =
+        hostedDeps.entries.map((e) => (e.value.description as HostedPackageDescription).url).toSet();
+    final gitDeps = Map.fromEntries(allDeps.entries.where((e) => e.value.source == PackageSource.git));
+    final uniqueGitPaths = hostedDeps.entries.map((e) => (e.value.description as GitPackageDescription).url).toSet();
 
     return '';
   }
