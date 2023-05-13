@@ -1,24 +1,19 @@
 import 'package:changelog_bubbler/src/dependency_parser.dart';
 
 class DiffBuilder {
-  final String repoPathCurrentState;
-  final String repoPathPreviousState;
-
   /// Holds the parsed dependencies for the repo in the current state
-  late final DependencyParser parserCurrent;
+  final DependencyParser parserCurrent;
 
   /// Holds the parsed dependencies for the repo in the previous state
-  late final DependencyParser parserPrevious;
+  final DependencyParser parserPrevious;
 
   DiffBuilder({
-    required this.repoPathCurrentState,
-    required this.repoPathPreviousState,
+    required this.parserPrevious,
+    required this.parserCurrent,
   });
 
   Future<String> buildDiff() async {
-    parserPrevious = DependencyParser(repoPath: repoPathPreviousState);
     await parserPrevious.parseDependencies();
-    parserCurrent = DependencyParser(repoPath: repoPathCurrentState);
     await parserCurrent.parseDependencies();
 
     // final changedDeps = parserPrevious.allPackages.entries.where((e){

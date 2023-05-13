@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:changelog_bubbler/src/dependency_parser.dart';
 import 'package:changelog_bubbler/src/diff_builder.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/repository_preparer.dart';
@@ -17,40 +18,58 @@ class ChangelogBubbler extends CommandRunner<int> {
     argParser.addOption(
       'previous-ref',
       help:
-          'The previous ref which should be compared with the current ref. If none is passed, this will default to the tag before the current',
+          'The previous ref which should be compared with the current ref. If none is passed, this will default to the tag before the current. If no tags are found, it will use the previous commit',
     );
     argParser.addOption(
       'output',
       help: 'The output file',
+      defaultsTo: 'CHANGELOG_BUBBLED.g.md',
+    );
+    argParser.addFlag(
+      'dev',
+      help: 'Include dev dependencies in output',
+      defaultsTo: true,
+    );
+    argParser.addFlag(
+      'transitive',
+      help: 'Include transitive dependencies in output',
+      defaultsTo: true,
     );
     registerGlobalDependencies();
   }
 
   @override
   Future<int> run(Iterable<String> args) async {
+    // Define the tempDir where this repo will be copied to and set to the state to compare
     final tempDir = Directory.systemTemp.createTempSync('temp_changelog_bubbler_dir');
     try {
       // Parsing the args in the try/catch to see if it throws an exception
       final argResults = parse(args);
+      final prevousRefArg = argResults['previous-ref'] as String?;
+      final shouldIncludeDevArg = argResults['dev'] as bool;
+      final shouldIncludeTransitiveArg = argResults['transitive'] as String?;
 
-      // Ensure the working directory is a dart git repo with no unstaged changes
+      // Ensure the working directory is a dart git repo
       await validateWorkingDir();
 
       // Copy the current repo to the tempDir
       await copyPath(workingDir, tempDir.path);
 
-      // Copies current repo, clear local changes, and check out state to compare
+      // Copies current repo, clear local changes, check out state to compare, run a pub get
       await RepositoryPreparer(
         repoPath: tempDir.path,
-        passedRef: argResults['previous-ref'] as String?,
+        passedRef: prevousRefArg,
       ).prepareTempRepo();
 
-      final diff = await DiffBuilder(
-        repoPathCurrentState: workingDir,
-        repoPathPreviousState: tempDir.path,
-      ).buildDiff();
+      // Parse dependencies from pubspec.lock
+      final parserPrevious = DependencyParser(repoPath: tempDir.path);
+      final parserCurrent = DependencyParser(repoPath: workingDir);
+      await parserPrevious.parseDependencies();
+      await parserCurrent.parseDependencies();
 
-      // write the diff to a file
+      final diff = await DiffBuilder(parserPrevious: parserPrevious, parserCurrent: parserCurrent).buildDiff();
+
+      // TODO write the diff to a file
     } on UsageException catch (e) {
       print(e.message);
       print('');
@@ -68,11 +87,13 @@ class ChangelogBubbler extends CommandRunner<int> {
     return ExitCode.success.code;
   }
 
+  /// Ensure the working directory is a dart git repo
+  ///
+  /// * Check if current dir is a dart project
+  /// * Error out of it is not a git dir and does not contain a pubspec.yaml
+  /// * We don't want users to accidentally run this in a folder that doesn't contain a flutter project
   @visibleForTesting
   Future<void> validateWorkingDir() async {
-    // Check if current dir is a dart project
-    // Error out of it is not a git dir and does not contain a pubspec.yaml
-    // We don't want users to accidentally run this in a folder that doesn't contain a flutter project
     final pubspecYamlExists = File(p.join(workingDir, 'pubspec.yaml')).existsSync();
     if (!pubspecYamlExists) {
       throw (Exception('pubspec.yaml not found. Program must be run from a dart repository'));

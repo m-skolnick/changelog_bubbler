@@ -12,12 +12,14 @@ class RepositoryPreparer {
     this.passedRef,
   });
 
-  /// *. Clear all changes
-  /// *. If passed ref is null:
+  /// Prepare the temp repo for comparison
+  ///
+  /// * Clear all changes
+  /// * If passed ref is null:
   ///   a. Search for previous tag
   ///   b. If previous tag is null -> Get previous commit
-  /// *. Checks out ref
-  /// *. Gets dependencies
+  /// * Check out ref
+  /// * Get dependencies
   Future<void> prepareTempRepo() async {
     await _cleanGitState();
     await _checkOutRef();

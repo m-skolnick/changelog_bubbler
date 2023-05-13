@@ -10,13 +10,13 @@ class DependencyParser {
   late final Map<String, Package> allPackages;
 
   final _shell = getDep<BubblerShell>();
-  final String _repoPath;
+  final String repoPath;
 
-  DependencyParser({required String repoPath}) : _repoPath = repoPath;
+  DependencyParser({required this.repoPath});
 
   Future<void> parseDependencies() async {
     // Get all of the dependencies from the pubspec.lock
-    final lockStr = File(p.join(_repoPath, 'pubspec.lock')).readAsStringSync();
+    final lockStr = File(p.join(repoPath, 'pubspec.lock')).readAsStringSync();
     final lockfile = PubspecLock.parse(lockStr);
 
     // Run a `flutter pub deps --no-dev`
@@ -28,7 +28,7 @@ class DependencyParser {
     // when running this command
     final result = _shell.runSync(
       'dart pub deps --no-dev --style compact',
-      workingDir: _repoPath,
+      workingDir: repoPath,
     );
     final outText = result.outText;
     // Filter out the entries from the pubspecLock parse
