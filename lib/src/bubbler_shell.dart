@@ -30,12 +30,11 @@ class BubblerShell {
   }) async {
     final resultList = await Shell(
       workingDirectory: workingDir,
-      commandVerbose: true,
-      commentVerbose: true,
-      verbose: true,
+      commandVerbose: false,
+      commentVerbose: false,
+      verbose: false,
       throwOnError: false,
       runInShell: true,
-      includeParentEnvironment: true,
     ).run(script);
 
     return resultList.first;

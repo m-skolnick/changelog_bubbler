@@ -5,6 +5,7 @@ import 'package:changelog_bubbler/src/dependency_parser.dart';
 import 'package:changelog_bubbler/src/diff_builder.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/repository_preparer.dart';
+import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
@@ -52,42 +53,46 @@ class ChangelogBubbler extends CommandRunner<int> {
       final argResults = parse(args);
       final prevousRefArg = argResults['previous-ref'] as String?;
       final changelogName = argResults['changelog-name'] as String;
-      final outputFile = argResults['output'] as String;
+      final outputArg = argResults['output'] as String;
       final shouldIncludeDevArg = argResults['dev'] as bool;
       final shouldIncludeTransitiveArg = argResults['transitive'] as bool;
 
-      // Ensure the working directory is a dart git repo
+      print('Ensuring the working directory is a dart git repo...');
       await validateWorkingDir();
 
-      // Copy the current repo to the tempDir
+      print('Copying the current repo to a tempDir...');
       await copyPath(workingDir, tempDir.path);
 
-      // Copies current repo, clear local changes, check out state to compare, run a pub get
+      print('In temp dir: Cleaning git state, checking out previous ref, running a pub get...');
       await RepositoryPreparer(
         repoPath: tempDir.path,
         passedRef: prevousRefArg,
       ).prepareTempRepo();
 
-      // Parse dependencies from pubspec.lock
       final parserPrevious = DependencyParser(repoPath: tempDir.path);
       final parserCurrent = DependencyParser(repoPath: workingDir);
+      print('In temp dir: Parsing dependencies from pubspec.lock');
       parserPrevious.parseDependencies(
         includeTransitive: shouldIncludeTransitiveArg,
         includeDev: shouldIncludeDevArg,
       );
+      print('In current: Parsing dependencies from pubspec.lock...');
       parserCurrent.parseDependencies(
         includeTransitive: shouldIncludeTransitiveArg,
         includeDev: shouldIncludeDevArg,
       );
 
-      // Build the diff
+      print('Building diff...');
       final diff = await DiffBuilder(
         previous: parserPrevious,
         current: parserCurrent,
         changelogName: changelogName,
       ).buildDiff();
 
-      File(p.join(workingDir, outputFile)).writeAsStringSync(diff);
+      print('Writing diff to file ...');
+      final outputFile = File(outputArg);
+      outputFile.writeAsStringSync(diff);
+      print('${lightGreen.wrap('✓')} Diff written to ${outputFile.absolute}');
     } on UsageException catch (e) {
       print(e.message);
       print('');
@@ -99,6 +104,7 @@ class ChangelogBubbler extends CommandRunner<int> {
 
       return ExitCode.unavailable.code;
     } finally {
+      print('Deleting temp dir...');
       tempDir.deleteSync(recursive: true);
     }
 
