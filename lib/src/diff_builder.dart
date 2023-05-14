@@ -31,10 +31,11 @@ class DiffBuilder {
 
   String _buildGroups() {
     // Find the packages that have changed
-    final changedDeps = {...current.dependencies, ...previous.dependencies}
-      ..removeWhere((key, value) => previous.dependencies[key]?.sameVersion(value) == true)
-      ..removeWhere((key, value) => current.dependencies[key]?.sameVersion(value) == true);
-    final sortedDeps = changedDeps.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    final changedDeps = {...current.dependencies, ...previous.dependencies}.entries.where((e) {
+      return previous.dependencies[e.key]?.sameVersion(e.value) != true ||
+          current.dependencies[e.key]?.sameVersion(e.value) != true;
+    });
+    final sortedDeps = changedDeps.toList()..sort((a, b) => a.key.compareTo(b.key));
     // We will build the diff by section
     // Each section will be for a separate hosted location
     // Gather the unique urls for hosted dependencies
@@ -119,8 +120,8 @@ class DiffBuilder {
 
     return _depDiffTemplate
         .replaceFirst('{{package_name}}', previous.key)
-        .replaceFirst('{{previous_version}}', previous.value.package.version.toString())
-        .replaceFirst('{{current_version}}', current.value.package.version.toString())
+        .replaceFirst('{{previous_version}}', previous.value.version.toString())
+        .replaceFirst('{{current_version}}', current.value.version.toString())
         .replaceFirst('{{dependency_type}}', current.value.dependencyType.name)
         .replaceFirst(
           '{{changelog_diff}}',

@@ -11,10 +11,17 @@ class PackageWrapper {
 
   PackageWrapper(this.name, this.package);
 
+  String get version {
+    if (package.description is GitPackageDescription) {
+      final resolvedRef = (package.description as GitPackageDescription).resolvedRef;
+      return resolvedRef.substring(0, 7);
+    }
+
+    return package.version.toString();
+  }
+
   bool sameVersion(PackageWrapper other) {
-    // The pub cache path contains the version (for hosted deps) and the ref (for git deps)
-    // so it is a valid way to determine if they are the same version
-    return getPubCachePath() == other.getPubCachePath();
+    return version == other.version;
   }
 
   String getPubCachePath() {
