@@ -8,58 +8,41 @@ import 'package:path/path.dart' as p;
 
 class DiffBuilder {
   /// Holds the parsed dependencies for the repo in the current state
-  final DependencyParser parserCurrent;
+  final DependencyParser current;
 
   /// Holds the parsed dependencies for the repo in the previous state
-  final DependencyParser parserPrevious;
+  final DependencyParser previous;
 
   /// The name of the changelog we should be searching for
   ///   This can be a value passed by the user. Check CLI input for defaults.
   final String changelogName;
 
   DiffBuilder({
-    required this.parserPrevious,
-    required this.parserCurrent,
+    required this.previous,
+    required this.current,
     required this.changelogName,
   });
 
   Future<String> buildDiff() async {
     return _fullOutputTemplate
-        .replaceFirst('{{main_app}}', _getMainAppSection())
-        .replaceFirst('{{dependency_groups}}', _getSections());
+        .replaceFirst('{{main_app}}', _buildMainAppSection())
+        .replaceFirst('{{dependency_groups}}', _buildGroups());
   }
 
-  String _getChangelogDiff({
-    required String previousPath,
-    required String currentPath,
-  }) {
-    final previousChangelog = File(p.join(previousPath, changelogName));
-    final currentChangelog = File(p.join(currentPath, changelogName));
-
-    if (!previousChangelog.existsSync() || !currentChangelog.existsSync()) {
-      return '$changelogName not found';
-    }
-    final previousString = previousChangelog.readAsStringSync();
-    final currentString = currentChangelog.readAsStringSync();
-    final diff = currentString.replaceFirst(previousString, '');
-    if (diff.isEmpty) {
-      return '$changelogName did not contain changes';
-    }
-
-    return diff;
-  }
-
-  String _getSections() {
+  String _buildGroups() {
+    // Find the packages that have changed
+    final changedDeps = {...current.dependencies, ...previous.dependencies}
+      ..removeWhere((key, value) => previous.dependencies[key]?.sameVersion(value) == true)
+      ..removeWhere((key, value) => current.dependencies[key]?.sameVersion(value) == true);
+    final sortedDeps = changedDeps.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
     // We will build the diff by section
     // Each section will be for a separate hosted location
     // Gather the unique urls for hosted dependencies
-    final allDeps = {...parserCurrent.dependencies, ...parserPrevious.dependencies}.entries.toList();
-    allDeps.sort((a, b) => a.key.compareTo(b.key));
-    final urlSet = allDeps.map((e) => e.value.trimmedUrl).whereNotNull().toSet();
+    final urlSet = sortedDeps.map((e) => e.value.trimmedUrl).whereNotNull().toSet();
 
     final groupsBySection = StringBuffer();
     for (final groupUrl in urlSet) {
-      final depsInGroup = allDeps.where((e) => e.value.trimmedUrl == groupUrl);
+      final depsInGroup = sortedDeps.where((e) => e.value.trimmedUrl == groupUrl);
       if (depsInGroup.isEmpty) {
         continue;
       }
@@ -70,10 +53,10 @@ class DiffBuilder {
           continue;
         }
         for (final dep in depsOfDepType) {
-          final previousDep = parserPrevious.dependencies.entries.firstWhereOrNull((e) => e.key == dep.key);
-          final currentDep = parserCurrent.dependencies.entries.firstWhereOrNull((e) => e.key == dep.key);
+          final previousDep = previous.dependencies.entries.firstWhereOrNull((e) => e.key == dep.key);
+          final currentDep = current.dependencies.entries.firstWhereOrNull((e) => e.key == dep.key);
 
-          groupBuffer.write(_getPackageDiff(
+          groupBuffer.write(_buildPackageDiff(
             previous: previousDep,
             current: currentDep,
           ));
@@ -89,30 +72,30 @@ class DiffBuilder {
     return groupsBySection.toString();
   }
 
-  String _getMainAppSection() {
+  String _buildMainAppSection() {
     return _mainPackageDiffTemplate
         .replaceFirst(
           '{{package_name}}',
-          parserPrevious.pubspec.name,
+          previous.pubspec.name,
         )
         .replaceFirst(
           '{{previous_version}}',
-          parserPrevious.pubspec.version.toString(),
+          previous.pubspec.version.toString(),
         )
         .replaceFirst(
           '{{current_version}}',
-          parserCurrent.pubspec.version.toString(),
+          current.pubspec.version.toString(),
         )
         .replaceFirst(
           '{{changelog_diff}}',
           _getChangelogDiff(
-            currentPath: parserCurrent.repoPath,
-            previousPath: parserPrevious.repoPath,
+            currentPath: current.repoPath,
+            previousPath: previous.repoPath,
           ),
         );
   }
 
-  String _getPackageDiff({
+  String _buildPackageDiff({
     required MapEntry<String, PackageWrapper>? previous,
     required MapEntry<String, PackageWrapper>? current,
   }) {
@@ -138,10 +121,30 @@ class DiffBuilder {
         .replaceFirst(
           '{{changelog_diff}}',
           _getChangelogDiff(
-            previousPath: previous.value.getPubCachePath(name: previous.key),
-            currentPath: current.value.getPubCachePath(name: current.key),
+            previousPath: previous.value.getPubCachePath(),
+            currentPath: current.value.getPubCachePath(),
           ),
         );
+  }
+
+  String _getChangelogDiff({
+    required String previousPath,
+    required String currentPath,
+  }) {
+    final previousChangelog = File(p.join(previousPath, changelogName));
+    final currentChangelog = File(p.join(currentPath, changelogName));
+
+    if (!previousChangelog.existsSync() || !currentChangelog.existsSync()) {
+      return '$changelogName not found';
+    }
+    final previousString = previousChangelog.readAsStringSync();
+    final currentString = currentChangelog.readAsStringSync();
+    final diff = currentString.replaceFirst(previousString, '');
+    if (diff.isEmpty) {
+      return '$changelogName did not contain changes';
+    }
+
+    return diff;
   }
 
   static const _fullOutputTemplate = '''

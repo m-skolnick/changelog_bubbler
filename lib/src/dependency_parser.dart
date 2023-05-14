@@ -28,7 +28,7 @@ class DependencyParser {
     // Get all of the dependencies from the pubspec.lock
     final lockString = File(p.join(repoPath, 'pubspec.lock')).readAsStringSync();
     final lockfile = PubspecLock.parse(lockString);
-    final allDeps = lockfile.packages.map((key, value) => MapEntry(key, PackageWrapper(value)));
+    final allDeps = lockfile.packages.map((key, value) => MapEntry(key, PackageWrapper(key, value)));
 
     final devDeps = _isolateDevDeps(allDeps.keys);
     var filteredDeps = allDeps;

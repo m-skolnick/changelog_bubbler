@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:io/io.dart';
-import 'package:process_run/process_run.dart';
+import 'package:process_run/shell.dart';
 
 class BubblerShell {
   BubblerShell.globalConstructor();

@@ -284,10 +284,11 @@ packages:
   pubspec_parse:
     dependency: "direct main"
     description:
-      name: pubspec_parse
-      sha256: c63b2876e58e194e4b0828fcb080ad0e06d051cb607a6be51a9e084f47cb9367
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: c2851b4cbe6b60179de2b92302ebb1933052454e
+      url: "https://github.com/dart-lang/pubspec_parse"
+    source: git
     version: "1.2.3"
   shelf:
     dependency: transitive

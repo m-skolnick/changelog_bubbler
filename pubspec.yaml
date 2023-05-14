@@ -17,7 +17,9 @@ dependencies:
   process_run: ^0.13.0
   pub_semver: ^2.0.0
   pubspec_lock_parse: ^2.2.0
-  pubspec_parse: ^1.2.3
+  # pubspec_parse: ^1.2.3
+  pubspec_parse:
+    git: https://github.com/dart-lang/pubspec_parse
 
 dev_dependencies:
   lints: ^2.0.0

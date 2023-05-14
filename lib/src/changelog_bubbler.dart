@@ -82,8 +82,8 @@ class ChangelogBubbler extends CommandRunner<int> {
 
       // Build the diff
       final diff = await DiffBuilder(
-        parserPrevious: parserPrevious,
-        parserCurrent: parserCurrent,
+        previous: parserPrevious,
+        current: parserCurrent,
         changelogName: changelogName,
       ).buildDiff();
 
