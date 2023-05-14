@@ -69,6 +69,10 @@ class DiffBuilder {
       );
     }
 
+    if (groupsBySection.isEmpty) {
+      return _emptyDependenciesTemplate;
+    }
+
     return groupsBySection.toString();
   }
 
@@ -154,6 +158,7 @@ class DiffBuilder {
 {{main_app}}
 
 ## Changed Dependencies
+
 {{dependency_groups}}
 ''';
 
@@ -163,23 +168,30 @@ class DiffBuilder {
 {{packages_in_group}}
 ''';
 
+  static const _emptyDependenciesTemplate = '''
+$_paddedDivStart
+No changed dependencies
+$_divEnd
+''';
+
   static const _mainPackageDiffTemplate = '''
 {{package_name}} | {{previous_version}} -> {{current_version}}
 
-<div markdown="1" style="padding-left: 2em; padding-bottom: 1em;">
+$_paddedDivStart
 {{changelog_diff}}
-</div>
-
+$_divEnd
 ''';
   static const _depDiffTemplate = '''
 {{package_name}} | {{previous_version}} -> {{current_version}} | {{dependency_type}}
 
-<div markdown="1" style="padding-left: 2em; padding-bottom: 1em;">
+$_paddedDivStart
 {{changelog_diff}}
-</div>
-
+$_divEnd
 ''';
   static const _depAddedOrRemovedTemplate = '''
 {{package_name}} | {{change_type}} | {{dependency_type}}
 ''';
+
+  static const _paddedDivStart = '<div style="padding-left: 2em; padding-bottom: 1em;">';
+  static const _divEnd = '</div>';
 }
