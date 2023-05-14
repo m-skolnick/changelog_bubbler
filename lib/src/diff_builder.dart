@@ -24,9 +24,10 @@ class DiffBuilder {
   });
 
   Future<String> buildDiff() async {
-    return _fullOutputTemplate
-        .replaceFirst('{{main_app}}', _buildMainAppSection())
-        .replaceFirst('{{dependency_groups}}', _buildGroups());
+    return _fullOutputStr(
+      mainApp: _buildMainAppSection(),
+      dependencyGroups: _buildGroups(),
+    );
   }
 
   String _buildGroups() {
@@ -64,40 +65,30 @@ class DiffBuilder {
         }
       }
       groupsBySection.write(
-        _groupTemplate
-            .replaceFirst('{{group_name}}', groupUrl)
-            .replaceFirst('{{packages_in_group}}', groupBuffer.toString()),
+        _groupStr(
+          groupName: groupUrl,
+          packagesInGroup: groupBuffer.toString(),
+        ),
       );
     }
 
     if (groupsBySection.isEmpty) {
-      return _emptyDependenciesTemplate;
+      return _emptyDependencyStr();
     }
 
     return groupsBySection.toString();
   }
 
   String _buildMainAppSection() {
-    return _mainPackageDiffTemplate
-        .replaceFirst(
-          '{{package_name}}',
-          previous.pubspec.name,
-        )
-        .replaceFirst(
-          '{{previous_version}}',
-          previous.pubspec.version.toString(),
-        )
-        .replaceFirst(
-          '{{current_version}}',
-          current.pubspec.version.toString(),
-        )
-        .replaceFirst(
-          '{{changelog_diff}}',
-          _getChangelogDiff(
-            currentPath: current.repoPath,
-            previousPath: previous.repoPath,
-          ),
-        );
+    return _mainPackageDiffStr(
+      packageName: previous.pubspec.name,
+      previousVersion: previous.pubspec.version.toString(),
+      currentVersion: current.pubspec.version.toString(),
+      changelogDiff: _getChangelogDiff(
+        currentPath: current.repoPath,
+        previousPath: previous.repoPath,
+      ),
+    );
   }
 
   String _buildPackageDiff({
@@ -106,30 +97,30 @@ class DiffBuilder {
   }) {
     assert(previous != null || current != null, 'Either previous or current must not be null');
     if (previous == null) {
-      return _depAddedOrRemovedTemplate
-          .replaceFirst('{{package_name}}', current!.key)
-          .replaceFirst('{{dependency_type}}', current.value.dependencyType.name)
-          .replaceFirst('{{change_type}}', 'ADDED');
+      return _depAddedOrRemovedStr(
+        packageName: current!.key,
+        dependencyType: current.value.dependencyType.name,
+        changeType: 'ADDED',
+      );
     }
     if (current == null) {
-      return _depAddedOrRemovedTemplate
-          .replaceFirst('{{package_name}}', previous.key)
-          .replaceFirst('{{dependency_type}}', previous.value.dependencyType.name)
-          .replaceFirst('{{change_type}}', 'REMOVED');
+      return _depAddedOrRemovedStr(
+        packageName: previous.key,
+        dependencyType: previous.value.dependencyType.name,
+        changeType: 'REMOVED',
+      );
     }
 
-    return _depDiffTemplate
-        .replaceFirst('{{package_name}}', previous.key)
-        .replaceFirst('{{previous_version}}', previous.value.version.toString())
-        .replaceFirst('{{current_version}}', current.value.version.toString())
-        .replaceFirst('{{dependency_type}}', current.value.dependencyType.name)
-        .replaceFirst(
-          '{{changelog_diff}}',
-          _getChangelogDiff(
-            previousPath: previous.value.getPubCachePath(),
-            currentPath: current.value.getPubCachePath(),
-          ),
-        );
+    return _depDiffStr(
+      packageName: previous.key,
+      previousVersion: previous.value.version.toString(),
+      currentVersion: current.value.version.toString(),
+      dependencyType: current.value.dependencyType.name,
+      changelogDiff: _getChangelogDiff(
+        previousPath: previous.value.getPubCachePath(),
+        currentPath: current.value.getPubCachePath(),
+      ),
+    );
   }
 
   String _getChangelogDiff({
@@ -152,47 +143,85 @@ class DiffBuilder {
     return diff;
   }
 
-  static const _fullOutputTemplate = '''
+  String _fullOutputStr({
+    required String mainApp,
+    required String dependencyGroups,
+  }) {
+    return '''
 # Bubbled Changelog
 
 ## This app
-{{main_app}}
+$mainApp
 
 ## Changed Dependencies
-
-{{dependency_groups}}
+$dependencyGroups
 ''';
+  }
 
-  static const _groupTemplate = '''
-### {{group_name}}
+  String _groupStr({
+    required String groupName,
+    required String packagesInGroup,
+  }) {
+    return _collapsibleStr(
+      header: groupName,
+      body: packagesInGroup,
+    );
+  }
 
-{{packages_in_group}}
+  String _emptyDependencyStr() {
+    return _paddedDivStr(body: 'No changed dependencies');
+  }
+
+  String _mainPackageDiffStr({
+    required String packageName,
+    required String previousVersion,
+    required String currentVersion,
+    required String changelogDiff,
+  }) {
+    return '''
+$packageName | $previousVersion -> $currentVersion
+${_paddedDivStr(body: changelogDiff)}
 ''';
+  }
 
-  static const _emptyDependenciesTemplate = '''
-$_paddedDivStart
-No changed dependencies
-$_divEnd
+  String _depDiffStr({
+    required String packageName,
+    required String previousVersion,
+    required String currentVersion,
+    required String dependencyType,
+    required String changelogDiff,
+  }) {
+    return _collapsibleStr(
+      header: '$packageName | $previousVersion -> $currentVersion | $dependencyType',
+      body: changelogDiff,
+    );
+  }
+
+  String _depAddedOrRemovedStr({
+    required String packageName,
+    required String changeType,
+    required String dependencyType,
+  }) {
+    return '$packageName | $changeType | $dependencyType';
+  }
+
+  String _collapsibleStr({
+    required String header,
+    required String body,
+  }) {
+    return '''
+<details>
+  <summary>$header</summary>
+  ${_paddedDivStr(body: body)}
+</details>
 ''';
+  }
 
-  static const _mainPackageDiffTemplate = '''
-{{package_name}} | {{previous_version}} -> {{current_version}}
-
-$_paddedDivStart
-{{changelog_diff}}
-$_divEnd
+  String _paddedDivStr({required String body}) {
+    return '''
+  <div style="padding-left: 2em; padding-bottom: 1em">
+    $body
+  </div>
 ''';
-  static const _depDiffTemplate = '''
-{{package_name}} | {{previous_version}} -> {{current_version}} | {{dependency_type}}
-
-$_paddedDivStart
-{{changelog_diff}}
-$_divEnd
-''';
-  static const _depAddedOrRemovedTemplate = '''
-{{package_name}} | {{change_type}} | {{dependency_type}}
-''';
-
-  static const _paddedDivStart = '<div style="padding-left: 2em; padding-bottom: 1em;">';
-  static const _divEnd = '</div>';
+  }
 }

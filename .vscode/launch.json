@@ -8,7 +8,8 @@
             "name": "changelog_bubbler",
             "request": "launch",
             "type": "dart",
-            "program": "bin/changelog_bubbler.dart"
+            "program": "bin/changelog_bubbler.dart",
+            "args": ["--previous-ref", "8762db9"]
         }
     ]
 }

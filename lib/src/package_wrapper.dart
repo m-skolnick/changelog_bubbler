@@ -24,10 +24,13 @@ class PackageWrapper {
     return version == other.version;
   }
 
+// from: dart.cloudsmith.io/alkami/flutter/
+//   to: dart.cloudsmith.io%47alkami%47flutter%47
   String getPubCachePath() {
     String path = _systemPubCachePath;
     if (package.description is HostedPackageDescription) {
-      path = p.join(path, 'hosted', trimmedUrl, '$name-${package.version}');
+      final formattedUrl = trimmedUrl?.replaceAll('/', '%47');
+      path = p.join(path, 'hosted', formattedUrl, '$name-${package.version}');
     }
     if (package.description is GitPackageDescription) {
       final resolvedRef = (package.description as GitPackageDescription).resolvedRef;
