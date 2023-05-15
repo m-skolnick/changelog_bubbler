@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:changelog_bubbler/src/dependency_parser.dart';
 import 'package:changelog_bubbler/src/diff_builder.dart';
@@ -46,11 +47,23 @@ class ChangelogBubbler extends CommandRunner<int> {
 
   @override
   Future<int> run(Iterable<String> args) async {
+    late final ArgResults argResults;
+    try {
+      // Parsing the args in the try/catch to see if it throws an exception
+      argResults = parse(args);
+      if (argResults['help'] as bool) {
+        printUsage();
+        return ExitCode.success.code;
+      }
+    } on UsageException catch (e) {
+      print(e.message);
+      print('');
+      print(e.usage);
+      return ExitCode.usage.code;
+    }
     // Define the tempDir where this repo will be copied to and set to the state to compare
     final tempDir = Directory.systemTemp.createTempSync('temp_changelog_bubbler_dir');
     try {
-      // Parsing the args in the try/catch to see if it throws an exception
-      final argResults = parse(args);
       final prevousRefArg = argResults['previous-ref'] as String?;
       final changelogName = argResults['changelog-name'] as String;
       final outputArg = argResults['output'] as String;
