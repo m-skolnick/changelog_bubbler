@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - staging
   pull_request:
     branches:
       - main
@@ -18,14 +19,19 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - uses: dart-lang/setup-dart@v1
+      - name: Dart install
+        uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ env.dart_version }}
 
       - name: Pub Get
         run: dart pub get
+
+      - name: Format
+        run: dart format --set-exit-if-changed .
 
       - name: Publish dry run
         run: dart pub publish --dry-run
