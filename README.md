@@ -3,7 +3,7 @@
 <br/>
 
 <p align="center">
-<a href="https://github.com/m-skolnick/changelog_bubbler/actions/workflows/build.yaml"><img src="https://github.com/m-skolnick/changelog_bubbler/actions/workflows/build.yaml/badge.svg" alt="build status"></a>
+<a href="https://github.com/m-skolnick/changelog_bubbler/actions/workflows/test.yaml"><img src="https://github.com/m-skolnick/changelog_bubbler/actions/workflows/test.yaml/badge.svg" alt="build status"></a>
 <a href="https://codecov.io/gh/m-skolnick/changelog_bubbler"><img src="https://codecov.io/gh/m-skolnick/changelog_bubbler/branch/main/graph/badge.svg" alt="codecov"></a>
 <a href="https://pub.dev/packages/changelog_bubbler"><img src="https://img.shields.io/pub/v/changelog_bubbler.svg" alt="Latest version on pub.dev"></a>
 </p>

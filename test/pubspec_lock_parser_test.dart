@@ -6,7 +6,7 @@ void main() {
   });
 }
 
-final pubspec_lock_section = '''
+final pubspecLockSection = '''
   checked_yaml:
     dependency: transitive
     description:
