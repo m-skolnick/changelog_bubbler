@@ -31,7 +31,7 @@ jobs:
       - name: Verify Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v2
         with:
-          path: /coverage/lcov.info
+          path: coverage/lcov.info
           min_coverage: 20
 
       - name: Upload coverage to Codecov
