@@ -1,4 +1,4 @@
-name: Build
+name: Test
 
 env:
   dart_version: 2.19.2
