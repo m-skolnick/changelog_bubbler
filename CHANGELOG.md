@@ -1,2 +1,3 @@
-1. testing some changelog changes
-2. changelog changes
+# 1.0.0
+
+- initial release

@@ -40,9 +40,7 @@ jobs:
         run: |
           dart test --coverage=coverage
           dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
-      
-      # Maybe use this instead for coverage validation
-      # https://github.com/emanuel-braz/dlcov
+
       - name: Verify Test Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v2
         with:
