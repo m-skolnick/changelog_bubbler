@@ -1,3 +1,11 @@
+import 'package:test/test.dart';
+
+void main() {
+  test('empty test', () {
+    expect(2 + 2, 4);
+  });
+}
+
 final pubspec_lock_section = '''
   checked_yaml:
     dependency: transitive

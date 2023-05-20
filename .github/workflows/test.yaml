@@ -1,7 +1,7 @@
 name: Build
 
 env:
-  dart_version: 2.18.5
+  dart_version: 2.19.2
 
 on:
   push:
@@ -16,8 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.dart_version }}
 
-      - name: Install Dependencies
+      - name: Pub Get
         run: dart pub get
 
       - name: Run Tests
