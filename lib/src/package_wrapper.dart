@@ -1,6 +1,7 @@
 import 'package:changelog_bubbler/src/dependency_type.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/platform_wrapper.dart';
+import 'package:meta/meta.dart';
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
 import 'package:path/path.dart' as p;
 
@@ -44,14 +45,16 @@ class PackageWrapper {
 
   String? get trimmedUrl {
     final scheme = 'https://';
-    final url = _url;
-    if (url?.startsWith(scheme) == true) {
-      return url?.replaceFirst(scheme, '');
+    // ignore: no_leading_underscores_for_local_identifiers
+    final _url = url;
+    if (_url?.startsWith(scheme) == true) {
+      return _url?.replaceFirst(scheme, '');
     }
-    return url;
+    return _url;
   }
 
-  String? get _url {
+  @visibleForTesting
+  String? get url {
     if (package.description is HostedPackageDescription) {
       return (package.description as HostedPackageDescription).url;
     }
