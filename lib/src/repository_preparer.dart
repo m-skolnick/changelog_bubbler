@@ -45,7 +45,8 @@ class RepositoryPreparer {
 
   Future<void> _checkOutRef() async {
     final shell = getDep<BubblerShell>();
-    final ref = passedRef ?? await _getPreviousTag() ?? await _getPreviousCommit();
+    final ref =
+        passedRef ?? await _getPreviousTag() ?? await _getPreviousCommit();
 
     await shell.run(
       'git checkout $ref',

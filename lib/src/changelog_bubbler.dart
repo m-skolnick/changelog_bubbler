@@ -62,7 +62,8 @@ class ChangelogBubbler extends CommandRunner<int> {
       return ExitCode.usage.code;
     }
     // Define the tempDir where this repo will be copied to and set to the state to compare
-    final tempDir = Directory.systemTemp.createTempSync('temp_changelog_bubbler_dir');
+    final tempDir =
+        Directory.systemTemp.createTempSync('temp_changelog_bubbler_dir');
     try {
       final prevousRefArg = argResults['previous-ref'] as String?;
       final changelogName = argResults['changelog-name'] as String;
@@ -76,7 +77,8 @@ class ChangelogBubbler extends CommandRunner<int> {
       print('Copying the current repo to a tempDir...');
       await copyPath(workingDir, tempDir.path);
 
-      print('In temp dir: Cleaning git state, checking out previous ref, running a pub get...');
+      print(
+          'In temp dir: Cleaning git state, checking out previous ref, running a pub get...');
       await RepositoryPreparer(
         repoPath: tempDir.path,
         passedRef: prevousRefArg,
@@ -131,13 +133,16 @@ class ChangelogBubbler extends CommandRunner<int> {
   /// * We don't want users to accidentally run this in a folder that doesn't contain a flutter project
   @visibleForTesting
   Future<void> validateWorkingDir() async {
-    final pubspecYamlExists = File(p.join(workingDir, 'pubspec.yaml')).existsSync();
+    final pubspecYamlExists =
+        File(p.join(workingDir, 'pubspec.yaml')).existsSync();
     if (!pubspecYamlExists) {
-      throw (Exception('pubspec.yaml not found. Program must be run from a dart repository'));
+      throw (Exception(
+          'pubspec.yaml not found. Program must be run from a dart repository'));
     }
     final isGitDir = Directory(p.join(workingDir, '.git')).existsSync();
     if (!isGitDir) {
-      throw (Exception('.git folder found. Program must be run from a git repository'));
+      throw (Exception(
+          '.git folder found. Program must be run from a git repository'));
     }
   }
 }

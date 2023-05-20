@@ -13,7 +13,8 @@ class PackageWrapper {
 
   String get version {
     if (package.description is GitPackageDescription) {
-      final resolvedRef = (package.description as GitPackageDescription).resolvedRef;
+      final resolvedRef =
+          (package.description as GitPackageDescription).resolvedRef;
       return resolvedRef.substring(0, 7);
     }
 
@@ -33,7 +34,8 @@ class PackageWrapper {
       path = p.join(path, 'hosted', formattedUrl, '$name-${package.version}');
     }
     if (package.description is GitPackageDescription) {
-      final resolvedRef = (package.description as GitPackageDescription).resolvedRef;
+      final resolvedRef =
+          (package.description as GitPackageDescription).resolvedRef;
       path = p.join(path, 'git', '$name-$resolvedRef');
     }
 

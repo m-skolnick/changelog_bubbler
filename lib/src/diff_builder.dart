@@ -32,31 +32,38 @@ class DiffBuilder {
 
   String _buildGroups() {
     // Find the packages that have changed
-    final changedDeps = {...current.dependencies, ...previous.dependencies}.entries.where((e) {
+    final changedDeps =
+        {...current.dependencies, ...previous.dependencies}.entries.where((e) {
       return previous.dependencies[e.key]?.sameVersion(e.value) != true ||
           current.dependencies[e.key]?.sameVersion(e.value) != true;
     });
-    final sortedDeps = changedDeps.toList()..sort((a, b) => a.key.compareTo(b.key));
+    final sortedDeps = changedDeps.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
     // We will build the diff by section
     // Each section will be for a separate hosted location
     // Gather the unique urls for hosted dependencies
-    final urlSet = sortedDeps.map((e) => e.value.trimmedUrl).whereNotNull().toSet();
+    final urlSet =
+        sortedDeps.map((e) => e.value.trimmedUrl).whereNotNull().toSet();
 
     final groupsBySection = StringBuffer();
     for (final groupUrl in urlSet) {
-      final depsInGroup = sortedDeps.where((e) => e.value.trimmedUrl == groupUrl);
+      final depsInGroup =
+          sortedDeps.where((e) => e.value.trimmedUrl == groupUrl);
       if (depsInGroup.isEmpty) {
         continue;
       }
       final groupBuffer = StringBuffer();
       for (final dependencyType in DependencyType.sorted) {
-        final depsOfDepType = depsInGroup.where((e) => e.value.dependencyType == dependencyType);
+        final depsOfDepType =
+            depsInGroup.where((e) => e.value.dependencyType == dependencyType);
         if (depsOfDepType.isEmpty) {
           continue;
         }
         for (final dep in depsOfDepType) {
-          final previousDep = previous.dependencies.entries.firstWhereOrNull((e) => e.key == dep.key);
-          final currentDep = current.dependencies.entries.firstWhereOrNull((e) => e.key == dep.key);
+          final previousDep = previous.dependencies.entries
+              .firstWhereOrNull((e) => e.key == dep.key);
+          final currentDep = current.dependencies.entries
+              .firstWhereOrNull((e) => e.key == dep.key);
 
           groupBuffer.write(_buildPackageDiff(
             previous: previousDep,
@@ -95,7 +102,8 @@ class DiffBuilder {
     required MapEntry<String, PackageWrapper>? previous,
     required MapEntry<String, PackageWrapper>? current,
   }) {
-    assert(previous != null || current != null, 'Either previous or current must not be null');
+    assert(previous != null || current != null,
+        'Either previous or current must not be null');
     if (previous == null) {
       return _depAddedOrRemovedStr(
         packageName: current!.key,
@@ -192,7 +200,8 @@ ${_paddedDivStr(body: changelogDiff)}
     required String changelogDiff,
   }) {
     return _collapsibleStr(
-      header: '$packageName | $previousVersion -> $currentVersion | $dependencyType',
+      header:
+          '$packageName | $previousVersion -> $currentVersion | $dependencyType',
       body: changelogDiff,
     );
   }
