@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -64,6 +65,7 @@ class ChangelogBubbler extends CommandRunner<int> {
     // Define the tempDir where this repo will be copied to and set to the state to compare
     final tempDir =
         Directory.systemTemp.createTempSync('temp_changelog_bubbler_dir');
+    final stopwatch = Stopwatch()..start();
     try {
       final prevousRefArg = argResults['previous-ref'] as String?;
       final changelogName = argResults['changelog-name'] as String;
@@ -121,6 +123,7 @@ class ChangelogBubbler extends CommandRunner<int> {
     } finally {
       print('Deleting temp dir...');
       tempDir.deleteSync(recursive: true);
+      print('(${stopwatch.elapsed.inSeconds}s)');
     }
 
     return ExitCode.success.code;
