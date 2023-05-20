@@ -1,4 +1,4 @@
-name: Upload Coverage
+name: Publish
 
 env:
   dart_version: 2.19.2
@@ -10,7 +10,7 @@ on:
       - staging
 
 jobs:
-  coverage:
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -27,12 +27,9 @@ jobs:
         run: |
           dart test --coverage=coverage
           dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
-      
-      - name: Verify Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v2
-        with:
-          path: coverage/lcov.info
-          min_coverage: 20
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+
+      - name: Publish to pub.dev
+        uses: dart pub publish --dry-run # Remove dry run when ready to start publishing

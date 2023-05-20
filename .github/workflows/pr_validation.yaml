@@ -30,8 +30,24 @@ jobs:
       - name: Pub Get
         run: dart pub get
 
+      - name: Validate Version Bump
+        run: dart run tool/validate_version_bump.dart
+
       - name: Format
         run: dart format --set-exit-if-changed .
+
+      - name: Run Tests
+        run: |
+          dart test --coverage=coverage
+          dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+      
+      # Maybe use this instead for coverage validation
+      # https://github.com/emanuel-braz/dlcov
+      - name: Verify Test Coverage
+        uses: VeryGoodOpenSource/very_good_coverage@v2
+        with:
+          path: coverage/lcov.info
+          min_coverage: 20
 
       - name: Publish dry run
         run: dart pub publish --dry-run
