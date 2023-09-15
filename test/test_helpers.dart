@@ -16,6 +16,7 @@ Future<void> registerMockGlobalDependencies() async {
   await GetIt.I.reset();
 
   _stubShell();
+  _stubPlatformWrapper();
 }
 
 void _stubShell() {
@@ -26,7 +27,13 @@ void _stubShell() {
         workingDir: any(named: 'workingDir'),
       )).thenAnswer((_) async => mockResult);
   GetIt.I.registerLazySingleton<BubblerShell>(() => mockShell);
-  GetIt.I.registerLazySingleton<PlatformWrapper>(() => _MockPlatformWrapper());
+}
+
+void _stubPlatformWrapper() {
+  final mockPlatformWrapper = _MockPlatformWrapper();
+  when(() => mockPlatformWrapper.isWindows).thenReturn(false);
+  when(() => mockPlatformWrapper.home).thenReturn('mock_home/.pub-cache');
+  GetIt.I.registerLazySingleton<PlatformWrapper>(() => mockPlatformWrapper);
 }
 
 extension TestHelper on BubblerShell {

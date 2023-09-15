@@ -8,9 +8,9 @@ import 'package:path/path.dart' as p;
 class PackageWrapper {
   final Package package;
   final String name;
-  late final DependencyType dependencyType;
+  final DependencyType dependencyType;
 
-  PackageWrapper(this.name, this.package);
+  PackageWrapper(this.name, this.package, this.dependencyType);
 
   String get version {
     if (package.description is GitPackageDescription) {

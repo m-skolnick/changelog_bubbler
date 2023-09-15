@@ -1,3 +1,4 @@
+import 'package:changelog_bubbler/src/dependency_type.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/package_wrapper.dart';
 import 'package:changelog_bubbler/src/platform_wrapper.dart';
@@ -28,6 +29,7 @@ PackageWrapper _mockGitWrapper([Version? version]) {
       source: PackageSource.git,
       version: version ?? _mockVersion,
     ),
+    DependencyType.directMain,
   );
 }
 
@@ -43,6 +45,7 @@ PackageWrapper _mockHostedWrapper({Version? version, String? url}) {
       source: PackageSource.hosted,
       version: version ?? _mockVersion,
     ),
+    DependencyType.directMain,
   );
 }
 

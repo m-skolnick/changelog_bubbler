@@ -1,5 +1,6 @@
 import 'package:changelog_bubbler/src/bubbler_shell.dart';
 import 'package:changelog_bubbler/src/dependency_parser.dart';
+import 'package:changelog_bubbler/src/dependency_type.dart';
 import 'package:changelog_bubbler/src/diff_builder.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/package_wrapper.dart';
@@ -27,7 +28,11 @@ void main() {
       current: currentParser,
       changelogName: 'changelogName',
     );
-    expect(await diffBuilder.buildDiff(), contains('async'));
+
+    final generatedDiff = await diffBuilder.buildDiff();
+    expect(generatedDiff, contains('hosted_url'));
+    expect(generatedDiff, contains('git_url'));
+    expect(generatedDiff, contains('pub_dev_url'));
   });
 }
 
@@ -48,7 +53,7 @@ Future<void> _prepareTestApp() async {
 }
 
 final _previousDependencyMap = {
-  'hosted': PackageWrapper(
+  'hosted_dep': PackageWrapper(
     'hosted_dep',
     Package(
       dependency: 'direct main',
@@ -56,6 +61,7 @@ final _previousDependencyMap = {
       source: PackageSource.hosted,
       version: Version.parse('1.0.0'),
     ),
+    DependencyType.directMain,
   ),
   'git_dep': PackageWrapper(
     'git_dep',
@@ -66,6 +72,7 @@ final _previousDependencyMap = {
       source: PackageSource.git,
       version: Version.parse('1.0.0'),
     ),
+    DependencyType.directMain,
   ),
 };
 final _currentDependencyMap = {
@@ -77,6 +84,7 @@ final _currentDependencyMap = {
       source: PackageSource.hosted,
       version: Version.parse('2.0.0'),
     ),
+    DependencyType.directMain,
   ),
   'pub_dev_dep': PackageWrapper(
     'pub_dev_dep',
@@ -86,5 +94,6 @@ final _currentDependencyMap = {
       source: PackageSource.hosted,
       version: Version.parse('2.0.0'),
     ),
+    DependencyType.directMain,
   ),
 };
