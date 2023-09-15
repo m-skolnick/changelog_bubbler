@@ -102,7 +102,7 @@ If you are using this in Github Actions, you will need to set the fetch-depth of
 ### Previous Ref
 By default the changelog will be generated based on a diff between the current git state and the previous tag.
 
-To specify your own ref, pass a flag named `previous-ref` with your desired git ref.
+To specify your own ref to compare with the current state, pass a flag named `previous-ref` with your desired git ref.
 
 example:
 ```
