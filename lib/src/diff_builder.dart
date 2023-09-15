@@ -156,9 +156,6 @@ class DiffBuilder {
     required String dependencyGroups,
   }) {
     return '''
-# Bubbled Changelog
-
-## This app
 $mainApp
 
 ## Changed Dependencies
@@ -186,10 +183,10 @@ $dependencyGroups
     required String currentVersion,
     required String changelogDiff,
   }) {
-    return '''
-$packageName | $previousVersion -> $currentVersion
-${_paddedDivStr(body: changelogDiff)}
-''';
+    return _collapsibleStr(
+      header: '$packageName | $previousVersion -> $currentVersion',
+      body: changelogDiff,
+    );
   }
 
   String _depDiffStr({
