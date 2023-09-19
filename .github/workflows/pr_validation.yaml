@@ -4,13 +4,10 @@ env:
   dart_version: 2.19.2
 
 on:
-  push:
-    branches:
-      - main
-      - develop
   pull_request:
     branches:
       - main
+      - develop
 
 jobs:
   pr_validation:
