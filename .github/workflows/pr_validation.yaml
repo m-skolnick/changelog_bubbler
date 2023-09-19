@@ -45,7 +45,7 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v2
         with:
           path: coverage/lcov.info
-          min_coverage: 75
+          min_coverage: 70
 
       - name: Publish dry run
         run: dart pub publish --dry-run

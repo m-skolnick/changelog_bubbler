@@ -31,4 +31,4 @@ jobs:
         uses: codecov/codecov-action@v3
 
       - name: Publish to pub.dev
-        uses: dart pub publish --dry-run # Remove dry run when ready to start publishing
+        uses: dart pub publish

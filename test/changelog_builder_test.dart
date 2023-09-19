@@ -1,9 +1,11 @@
 import 'package:changelog_bubbler/src/bubbler_shell.dart';
+import 'package:changelog_bubbler/src/change_manager.dart';
+import 'package:changelog_bubbler/src/changelog_builder.dart';
 import 'package:changelog_bubbler/src/dependency_parser.dart';
 import 'package:changelog_bubbler/src/dependency_type.dart';
-import 'package:changelog_bubbler/src/diff_builder.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/package_wrapper.dart';
+import 'package:changelog_bubbler/src/template_manager.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
@@ -18,18 +20,32 @@ void main() {
     await _prepareTestApp();
   });
   test('creates new section for each host', () async {
-    final previousParser = DependencyParser(repoPath: d.sandbox)
+    final parserPrevious = DependencyParser(repoPath: d.sandbox)
       ..dependencies = _previousDependencyMap;
-    final currentParser = DependencyParser(repoPath: d.sandbox)
+    final parserCurrent = DependencyParser(repoPath: d.sandbox)
       ..dependencies = _currentDependencyMap;
 
-    final diffBuilder = DiffBuilder(
-      previous: previousParser,
-      current: currentParser,
+    final diffBuilder = ChangelogBuilder(
+      changeManager: ChangeManager(
+        previous: parserPrevious,
+        current: parserCurrent,
+      ),
       changelogName: 'changelogName',
+      changelogTemplate: TemplateManager(
+        '',
+        templateForTesting: '{{dependency_groups}}',
+      ),
+      depGroupTemplate: TemplateManager(
+        '',
+        templateForTesting: '{{group_name}}',
+      ),
+      depChangedTemplate: TemplateManager('', templateForTesting: ''),
+      depAddedOrRemovedTemplate: TemplateManager('', templateForTesting: ''),
+      noChangedDependenciesTemplate:
+          TemplateManager('', templateForTesting: ''),
     );
 
-    final generatedDiff = await diffBuilder.buildDiff();
+    final generatedDiff = await diffBuilder.buildChangelogFromTemplates();
     expect(generatedDiff, contains('hosted_url'));
     expect(generatedDiff, contains('git_url'));
     expect(generatedDiff, contains('pub_dev_url'));
