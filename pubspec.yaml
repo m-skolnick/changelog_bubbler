@@ -1,6 +1,6 @@
 name: changelog_bubbler
 version: 0.1.0
-description: Compiles changelogs from this package and every sub-package between specified refs
+description: Compiles changelogs from this package and every sub-package (between specified refs)
 repository: https://github.com/m-skolnick/changelog_bubbler.dart
 environment:
   sdk: '>=2.18.0 <3.0.0'
@@ -24,9 +24,9 @@ dependencies:
 dev_dependencies:
   lints: ^2.0.0
   mocktail: ^0.3.0
+  pub_api_client: ^2.4.0
   test: ^1.24.2
   test_descriptor: ^2.0.0
-  test_process: ^2.0.0
 
 executables:
   changelog_bubbler: changelog_bubbler

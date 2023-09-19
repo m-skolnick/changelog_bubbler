@@ -1,3 +1,4 @@
+import 'package:changelog_bubbler/src/logger.dart';
 import 'package:process_run/process_run.dart';
 
 import 'package:changelog_bubbler/src/bubbler_shell.dart';
@@ -21,9 +22,20 @@ class RepositoryPreparer {
   /// * Check out ref
   /// * Get dependencies
   Future<void> prepareTempRepo() async {
+    var prompt = 'In temp dir: Cleaning git state';
+    Logger.progressStart(prompt);
     await _cleanGitState();
+    Logger.progressSuccess(prompt);
+
+    prompt = 'In temp dir: Checking out previous ref';
+    Logger.progressStart(prompt);
     await _checkOutRef();
+    Logger.progressSuccess(prompt);
+
+    prompt = 'In temp dir: Running a pub get';
+    Logger.progressStart(prompt);
     await _getDependencies();
+    Logger.progressSuccess(prompt);
   }
 
   Future<void> _cleanGitState() async {
@@ -45,7 +57,8 @@ class RepositoryPreparer {
 
   Future<void> _checkOutRef() async {
     final shell = getDep<BubblerShell>();
-    final ref = passedRef ?? await _getPreviousTag() ?? await _getPreviousCommit();
+    final ref =
+        passedRef ?? await _getPreviousTag() ?? await _getPreviousCommit();
 
     await shell.run(
       'git checkout $ref',

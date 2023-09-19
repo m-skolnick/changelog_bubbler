@@ -17,7 +17,8 @@ class DependencyParser {
   final _shell = getDep<BubblerShell>();
 
   DependencyParser({required this.repoPath}) {
-    final pubspecString = File(p.join(repoPath, 'pubspec.yaml')).readAsStringSync();
+    final pubspecString =
+        File(p.join(repoPath, 'pubspec.yaml')).readAsStringSync();
     pubspec = Pubspec.parse(pubspecString);
   }
 
@@ -26,44 +27,52 @@ class DependencyParser {
     required bool includeTransitive,
   }) {
     // Get all of the dependencies from the pubspec.lock
-    final lockString = File(p.join(repoPath, 'pubspec.lock')).readAsStringSync();
+    final lockString =
+        File(p.join(repoPath, 'pubspec.lock')).readAsStringSync();
     final lockfile = PubspecLock.parse(lockString);
-    final allDeps = lockfile.packages.map((key, value) => MapEntry(key, PackageWrapper(key, value)));
+    final devDeps = _isolateDevDeps(lockfile.packages.keys);
 
-    final devDeps = _isolateDevDeps(allDeps.keys);
-    var filteredDeps = allDeps;
+    final wrappedDeps = lockfile.packages.map((key, value) => MapEntry(
+        key,
+        PackageWrapper(
+          key,
+          value,
+          _determineDependencyType(key, value, devDeps),
+        )));
+
+    var filteredDeps = wrappedDeps;
     if (!includeDev) {
       filteredDeps = _filterDevDeps(filteredDeps, devDeps);
     }
     if (!includeTransitive) {
       filteredDeps = _filterTransitiveDeps(filteredDeps);
     }
-
-    filteredDeps = _labelDependencyTypes(filteredDeps, devDeps);
     dependencies = filteredDeps;
   }
 
-  Map<String, PackageWrapper> _filterDevDeps(Map<String, PackageWrapper> deps, Set<String> devDeps) {
+  Map<String, PackageWrapper> _filterDevDeps(
+      Map<String, PackageWrapper> deps, Set<String> devDeps) {
     return {...deps}..removeWhere((key, value) => devDeps.contains(key));
   }
 
-  Map<String, PackageWrapper> _filterTransitiveDeps(Map<String, PackageWrapper> deps) {
-    return {...deps}..removeWhere((key, value) => value.package.dependency == 'transitive');
+  Map<String, PackageWrapper> _filterTransitiveDeps(
+      Map<String, PackageWrapper> deps) {
+    return {...deps}
+      ..removeWhere((key, value) => value.package.dependency == 'transitive');
   }
 
-  Map<String, PackageWrapper> _labelDependencyTypes(Map<String, PackageWrapper> deps, Set<String> devDeps) {
-    return deps.map((key, value) {
-      if (value.package.dependency == 'transitive') {
-        if (devDeps.contains(key)) {
-          return MapEntry(key, value..dependencyType = DependencyType.transitiveDev);
-        }
-        return MapEntry(key, value..dependencyType = DependencyType.transitiveMain);
+  DependencyType _determineDependencyType(
+      String name, Package package, Set<String> devDepNames) {
+    if (package.dependency == 'transitive') {
+      if (devDepNames.contains(name)) {
+        return DependencyType.transitiveDev;
       }
-      if (devDeps.contains(key)) {
-        return MapEntry(key, value..dependencyType = DependencyType.directDev);
-      }
-      return MapEntry(key, value..dependencyType = DependencyType.directMain);
-    });
+      return DependencyType.transitiveMain;
+    }
+    if (devDepNames.contains(name)) {
+      return DependencyType.directDev;
+    }
+    return DependencyType.directMain;
   }
 
   ///  The pubspec.lock does not distinguish "transitive dev" from "transitive main" they are all labeled "transitive"

@@ -129,6 +129,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  http:
+    dependency: transitive
+    description:
+      name: http
+      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.6"
   http_multi_server:
     dependency: transitive
     description:
@@ -233,6 +241,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  oauth2:
+    dependency: transitive
+    description:
+      name: oauth2
+      sha256: "1e8376c222651904caf7785fd2fa01b1e2be608c94bec842a94e116deca88f13"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   package_config:
     dependency: transitive
     description:
@@ -265,6 +281,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.13.0"
+  pub_api_client:
+    dependency: "direct dev"
+    description:
+      name: pub_api_client
+      sha256: d4bc6c9ec778da1a79675eab41bde456b392973216acd783156afaee69230e22
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0"
   pub_semver:
     dependency: "direct main"
     description:
@@ -273,6 +297,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  pubspec:
+    dependency: transitive
+    description:
+      name: pubspec
+      sha256: f534a50a2b4d48dc3bc0ec147c8bd7c304280fff23b153f3f11803c4d49d927e
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
   pubspec_lock_parse:
     dependency: "direct main"
     description:
@@ -289,6 +321,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.3"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.1"
   shelf:
     dependency: transitive
     description:
@@ -417,14 +457,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
-  test_process:
-    dependency: "direct dev"
-    description:
-      name: test_process
-      sha256: b0e6702f58272d459d5b80b88696483f86eac230dab05ecf73d0662e305d005e
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   typed_data:
     dependency: transitive
     description:
@@ -433,6 +465,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
+  uri:
+    dependency: transitive
+    description:
+      name: uri
+      sha256: "889eea21e953187c6099802b7b4cf5219ba8f3518f604a1033064d45b1b8268a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   vm_service:
     dependency: transitive
     description:

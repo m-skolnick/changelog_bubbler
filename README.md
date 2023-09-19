@@ -1,4 +1,3 @@
-<h1 align="center">UNDER DEVELOPMENT - NOT READY FOR USE</h1>
 <h1 align="center">Changelog Bubbler</h1>
 <br/>
 
@@ -15,30 +14,26 @@
 
 ## Overview
 
-The goal of this package is to automate the process of creating a changelog diff for flutter and dart applications. This package not only gathers the changelog diff from the current package. It also analyzes every sub-package and bubbles up their changelogs as well.
+The goal of this package is to automate the process of creating a changelog diff for flutter and dart applications. This package not only gathers the changelog diff from the current package. It also analyzes every changed sub-package and bubbles up their changelogs as well.
 
 ### How it Works
 
-This package generates a single CHANGELOG_BUBBLES.md file which contains the changelog diff from this application and every depended on dart application.
+This package generates a single CHANGELOG_BUBBLED.md file which contains the changelog diff from this application and every depended on dart application.
 
 This builder works as follows:
-1. Read passed in args (ie.. ref to compare with current)
+1. Read passed in args (ie.. see args by running `dart pub run changelog_bubbler --help`)
 1. Copy source Repo into temp folder and check out at specified ref
 1. Gather info of repo in states current and previous
     1. Run pub get
     1. Read pubspec lock
     1. Build dep list based on pubspec lock and pub_cache
     1. Store path to pub_cache in dependency class for later reference
-1. Build release notes
-    1. Private Hosted - Direct
-    1. Private Hosted - Transitive
-    1. pub.dev - Direct
-    1. pub.dev - Transitive
-1. Release note section building
-    1. Only changed deps
+1. Build list of changed dependencies
+    1. Group by Host URL (ie.. pub.dev, git, or hosted refs)
+    1. Only gather changed deps
     1. Print:
         1. name 1.0.0 -> 2.0.0
-        1. Changelog new lines
+        1. Changelog diff from package
 
 1. Create a file with the information gathered above
 
@@ -59,11 +54,9 @@ This builder works as follows:
 
 1. `CHANGELOG_BUBBLED.g.md` will be generated with content:
 ```
-# Bubbled Changelog
-
 Example app
 
-## Hosted - Direct
+## pub.dev
 
 my_app_core 1.0.0 - 1.1.0
 
@@ -102,7 +95,7 @@ If you are using this in Github Actions, you will need to set the fetch-depth of
 ### Previous Ref
 By default the changelog will be generated based on a diff between the current git state and the previous tag.
 
-To specify your own ref, pass a flag named `previous-ref` with your desired git ref.
+To specify your own ref to compare with the current state, pass a flag named `previous-ref` with your desired git ref.
 
 example:
 ```
@@ -121,9 +114,21 @@ example:
 dart pub run changelog_bubbler --output MY_COOL_CHANGELOG_NAME.md
 ```
 
+### Templates
+All output is built based on templates found in the [Template Folder][template_folder].
+
+Any of the templates can be overriden by passing a path option.
+
+example:
+```
+dart pub run changelog_bubbler --changelog-template-path '/Users/micaiah.skolnick/Repos/alkami/changelog_bubbler/asset_test/changelog_template.html'
+```
+
+Run `dart pub run changelog_bubbler --help` to see a list of all possible path overrides.
 
 ## Maintainers
 
 - [Micaiah Skolnick](https://github.com/m-skolnick)
 
 [example_app_output]: https://github.com/m-skolnick/changelog_bubbler/blob/main/example/my_output_file.md
+[template_folder]: https://github.com/m-skolnick/changelog_bubbler/blob/main/template/

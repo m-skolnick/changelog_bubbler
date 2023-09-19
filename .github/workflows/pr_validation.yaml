@@ -4,12 +4,10 @@ env:
   dart_version: 2.19.2
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
+      - develop
 
 jobs:
   pr_validation:
@@ -18,14 +16,33 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - uses: dart-lang/setup-dart@v1
+      - name: Dart install
+        uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ env.dart_version }}
 
       - name: Pub Get
         run: dart pub get
+
+      - name: Validate Version Bump
+        run: dart run tool/validate_version_bump.dart
+
+      - name: Format
+        run: dart format --set-exit-if-changed .
+
+      - name: Run Tests
+        run: |
+          dart test --coverage=coverage
+          dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+
+      - name: Verify Test Coverage
+        uses: VeryGoodOpenSource/very_good_coverage@v2
+        with:
+          path: coverage/lcov.info
+          min_coverage: 70
 
       - name: Publish dry run
         run: dart pub publish --dry-run
