@@ -35,7 +35,7 @@ jobs:
         uses: codecov/codecov-action@v3
 
       - name: Publish to pub.dev
-        run: dart pub publish
+        run: dart pub publish --force
 
       - name: Create tag
         run: |
