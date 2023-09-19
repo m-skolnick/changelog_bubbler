@@ -2,7 +2,7 @@
 <br/>
 
 <p align="center">
-<a href="https://github.com/m-skolnick/changelog_bubbler/actions/workflows/test.yaml"><img src="https://github.com/m-skolnick/changelog_bubbler/actions/workflows/test.yaml/badge.svg" alt="build status"></a>
+<a href="https://github.com/m-skolnick/changelog_bubbler/actions/workflows/publish.yaml"><img src="https://github.com/m-skolnick/changelog_bubbler/actions/workflows/publish.yaml/badge.svg" alt="build status"></a>
 <a href="https://codecov.io/gh/m-skolnick/changelog_bubbler"><img src="https://codecov.io/gh/m-skolnick/changelog_bubbler/branch/main/graph/badge.svg" alt="codecov"></a>
 <a href="https://pub.dev/packages/changelog_bubbler"><img src="https://img.shields.io/pub/v/changelog_bubbler.svg" alt="Latest version on pub.dev"></a>
 </p>
@@ -10,11 +10,11 @@
 ---
 <br/>
 
-<p align="center">Compiles changelogs from this package and every sub-package between specified git refs</p>
+<p align="center">Compares two git refs and gathers changelogs from all dependencies</p>
 
 ## Overview
 
-The goal of this package is to automate the process of creating a changelog diff for flutter and dart applications. This package not only gathers the changelog diff from the current package. It also analyzes every changed sub-package and bubbles up their changelogs as well.
+The goal of this package is to automate the process of creating a changelog diff for flutter and dart applications. This package is meant to be used to create a master changelog for each release. This package creates one document which contains both the root package changes as well as changes found in every sub-package.
 
 ### How it Works
 
