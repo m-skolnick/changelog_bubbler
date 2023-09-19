@@ -10,11 +10,15 @@ on:
 
 jobs:
   publish:
+    permissions:
+      id-token: write # required for authentication using OIDC to publish to pub.dev
+
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v3
+
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ env.dart_version }}
@@ -31,4 +35,10 @@ jobs:
         uses: codecov/codecov-action@v3
 
       - name: Publish to pub.dev
-        uses: dart pub publish
+        run: dart pub publish
+
+      - name: Create tag
+        run: |
+          version=v$(dart run tool/get_version.dart)
+          git tag $version
+          git push origin $version
