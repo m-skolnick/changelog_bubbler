@@ -34,9 +34,6 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
 
-      - name: Publish to pub.dev
-        run: dart pub publish --force
-
       - name: Create tag
         run: |
           version=v$(dart run tool/get_version.dart)
