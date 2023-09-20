@@ -1,13 +1,5 @@
-name: Publish
-
 env:
   dart_version: 2.19.2
-
-# This workflow is triggered by tag creation
-# Tags are created on each merge to `main`
-#   because we don't want to need to manually create tags which align
-#   with the version in the pubspec.yaml etc.
-# The whole publish process is automated on merge to main
 
 on:
   push:
@@ -16,10 +8,11 @@ on:
 
 jobs:
   publish:
-    permissions:
-      id-token: write # Required for authentication using OIDC for pub.dev publish
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    permissions:
+      id-token: write # Required for authentication using OIDC for pub.dev publish
 
     steps:
       - name: Checkout
