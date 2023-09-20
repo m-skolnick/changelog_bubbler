@@ -159,13 +159,30 @@ class ChangelogBubbler extends CommandRunner<int> {
           previous: parserPrevious,
           current: parserCurrent,
         ),
-        changelogTemplate: TemplateManager(changelogTemplatePath),
-        depGroupTemplate: TemplateManager(dependencyGroupTemplatePath),
-        depChangedTemplate: TemplateManager(dependencyChangedTemplatePath),
-        depAddedOrRemovedTemplate:
-            TemplateManager(dependencyAddedOrRemovedTemplatePath),
-        noChangedDependenciesTemplate:
-            TemplateManager(noChangedDependenciesTemplate),
+        changelogTemplate: TemplateManager(
+          changelogTemplatePath,
+          isBundledTemplate: !argResults.wasParsed('changelog-template-path'),
+        ),
+        depGroupTemplate: TemplateManager(
+          dependencyGroupTemplatePath,
+          isBundledTemplate:
+              !argResults.wasParsed('dependency-group-template-path'),
+        ),
+        depChangedTemplate: TemplateManager(
+          dependencyChangedTemplatePath,
+          isBundledTemplate:
+              !argResults.wasParsed('dependency-changed-template-path'),
+        ),
+        depAddedOrRemovedTemplate: TemplateManager(
+          dependencyAddedOrRemovedTemplatePath,
+          isBundledTemplate: !argResults
+              .wasParsed('dependency-added-or-removed-template-path'),
+        ),
+        noChangedDependenciesTemplate: TemplateManager(
+          noChangedDependenciesTemplate,
+          isBundledTemplate:
+              !argResults.wasParsed('no-changed-dependencies-template-path'),
+        ),
       ).buildChangelogFromTemplates();
       Logger.progressSuccess(prompt);
 

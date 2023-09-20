@@ -11,3 +11,4 @@ dart_test.yaml
 example/
 pubspec.lock
 test/
+tool/

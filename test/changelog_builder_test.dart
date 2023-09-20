@@ -33,16 +33,29 @@ void main() {
       changelogName: 'changelogName',
       changelogTemplate: TemplateManager(
         '',
+        isBundledTemplate: true,
         templateForTesting: '{{dependency_groups}}',
       ),
       depGroupTemplate: TemplateManager(
         '',
+        isBundledTemplate: true,
         templateForTesting: '{{group_name}}',
       ),
-      depChangedTemplate: TemplateManager('', templateForTesting: ''),
-      depAddedOrRemovedTemplate: TemplateManager('', templateForTesting: ''),
-      noChangedDependenciesTemplate:
-          TemplateManager('', templateForTesting: ''),
+      depChangedTemplate: TemplateManager(
+        '',
+        isBundledTemplate: true,
+        templateForTesting: '',
+      ),
+      depAddedOrRemovedTemplate: TemplateManager(
+        '',
+        isBundledTemplate: true,
+        templateForTesting: '',
+      ),
+      noChangedDependenciesTemplate: TemplateManager(
+        '',
+        isBundledTemplate: true,
+        templateForTesting: '',
+      ),
     );
 
     final generatedDiff = await diffBuilder.buildChangelogFromTemplates();

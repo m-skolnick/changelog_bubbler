@@ -1,5 +1,5 @@
 name: changelog_bubbler
-version: 0.2.0
+version: 0.2.1
 description: Compiles changelogs from this package and every sub-package (between specified refs)
 repository: https://github.com/m-skolnick/changelog_bubbler.dart
 environment:
