@@ -3,23 +3,30 @@ name: Publish
 env:
   dart_version: 2.19.2
 
+# This workflow is triggered by tag creation
+# Tags are created on each merge to `main`
+#   because we don't want to need to manually create tags which align
+#   with the version in the pubspec.yaml etc.
+# The whole publish process is automated on merge to main
+
 on:
   push:
-    branches:
-      - main
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+*'
 
 jobs:
   publish:
     permissions:
-      id-token: write # required for authentication using OIDC to publish to pub.dev
-
+      id-token: write # Required for authentication using OIDC for pub.dev publish
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - uses: dart-lang/setup-dart@v1
+      - name: Dart install
+        uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ env.dart_version }}
 
@@ -34,8 +41,5 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
 
-      - name: Create tag
-        run: |
-          version=v$(dart run tool/get_version.dart)
-          git tag $version
-          git push origin $version
+      - name: Publish
+        run: dart pub publish --force

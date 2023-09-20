@@ -1,0 +1,35 @@
+# Creating this tag will trigger the `publish.yaml` workflow
+# The ONLY reason we do this is because the `dart pub publish` command
+#   will not allow packages to be published from GitHub actions unless
+#   called from inside a workflow which was triggered by tag creation
+
+name: Create Tag
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_PAT }}
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ env.GITHUB_TOKEN }}
+
+      - name: Create tag
+          # To parse the version:
+          #   1. Grab the "version" line from pubspec.yaml
+          #   2. Remove the "version:" and remove all spaces from the line
+        run: |
+          version=$(grep -m1 "version" pubspec.yaml | sed 's/version://;s/ //g')
+          tag_name=v$version
+          git tag $tag_name
+          git push origin $tag_name
