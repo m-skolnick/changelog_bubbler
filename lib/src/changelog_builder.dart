@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:changelog_bubbler/src/change_manager.dart';
@@ -6,7 +7,7 @@ import 'package:changelog_bubbler/src/template_manager.dart';
 import 'package:path/path.dart' as p;
 
 class ChangelogBuilder {
-// Manages the differences between the previous dependencies and current
+  // Manages the differences between the previous dependencies and current
   final ChangeManager changeManager;
 
   /// The name of the changelog we should be searching for
@@ -37,6 +38,13 @@ class ChangelogBuilder {
     required this.depAddedOrRemovedTemplate,
     required this.noChangedDependenciesTemplate,
   });
+
+  String buildJsonOutput() {
+    final changedDepsList =
+        changeManager.changedDeps.map((e) => e.toJson()).toList();
+    final encoder = JsonEncoder.withIndent('  ');
+    return encoder.convert(changedDepsList);
+  }
 
   Future<String> buildChangelogFromTemplates() async {
     return changelogTemplate.replaceAll({

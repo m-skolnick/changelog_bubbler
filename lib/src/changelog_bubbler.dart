@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -30,6 +31,10 @@ class ChangelogBubbler extends CommandRunner<int> {
       'output',
       help: 'The output file',
       defaultsTo: 'CHANGELOG_BUBBLED.g.md',
+    );
+    argParser.addOption(
+      'json-output',
+      help: 'The output file for a json list of changed dependencies',
     );
     argParser.addOption(
       'changelog-name',
@@ -97,6 +102,7 @@ class ChangelogBubbler extends CommandRunner<int> {
     try {
       final prevousRefArg = argResults['previous-ref'] as String?;
       final changelogName = argResults['changelog-name'] as String;
+      final jsonOutputArg = argResults['json-output'] as String?;
       final outputArg = argResults['output'] as String;
       final shouldIncludeDevArg = argResults['dev'] as bool;
       final shouldIncludeTransitiveArg = argResults['transitive'] as bool;
@@ -153,7 +159,7 @@ class ChangelogBubbler extends CommandRunner<int> {
 
       prompt = 'Building diff';
       Logger.progressStart(prompt);
-      final diff = await ChangelogBuilder(
+      final changelogBuilder = ChangelogBuilder(
         changelogName: changelogName,
         changeManager: ChangeManager(
           previous: parserPrevious,
@@ -183,12 +189,22 @@ class ChangelogBubbler extends CommandRunner<int> {
           isBundledTemplate:
               !argResults.wasParsed('no-changed-dependencies-template-path'),
         ),
-      ).buildChangelogFromTemplates();
+      );
       Logger.progressSuccess(prompt);
+
+      if (jsonOutputArg != null) {
+        prompt = 'Writing json output to file';
+        Logger.progressStart(prompt);
+        final outputFile = File(jsonOutputArg);
+        final jsonOutput = changelogBuilder.buildJsonOutput();
+        outputFile.writeAsStringSync(jsonOutput);
+        Logger.progressSuccess(prompt);
+      }
 
       prompt = 'Writing diff to file';
       Logger.progressStart(prompt);
       final outputFile = File(outputArg);
+      final diff = await changelogBuilder.buildChangelogFromTemplates();
       outputFile.writeAsStringSync(diff);
       Logger.progressSuccess(prompt);
       Logger.progressSuccess('Diff written to ${outputFile.absolute}');

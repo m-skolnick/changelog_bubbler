@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:changelog_bubbler/src/change_type.dart';
 import 'package:changelog_bubbler/src/dependency_type.dart';
 import 'package:changelog_bubbler/src/package_wrapper.dart';
+import 'package:path/path.dart' as p;
 
 class DependencyPair {
   final PackageWrapper? previous;
@@ -23,7 +26,36 @@ class DependencyPair {
   }
 
   String get name => (previous?.name ?? current?.name)!;
+  String? get url => previous?.url ?? current?.url;
   String? get trimmedUrl => previous?.trimmedUrl ?? current?.trimmedUrl;
   DependencyType get dependencyType =>
       (previous?.dependencyType ?? current?.dependencyType)!;
+
+  String? getChangelogDiff() {
+    final previousChangelog = previous?.getChangelog();
+    final currentChangelog = current?.getChangelog();
+
+    if (previousChangelog == null || currentChangelog == null) {
+      return null;
+    }
+
+    final diff = currentChangelog.replaceFirst(previousChangelog, '');
+    if (diff.isEmpty) {
+      return 'Changelog did not contain changes';
+    }
+
+    return diff;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'dependencyType': dependencyType.name,
+      'changeType': changeType.name,
+      'url': url,
+      'previousVersion': previous?.version,
+      'currentVersion': current?.version,
+      'changelogDiff': getChangelogDiff(),
+    };
+  }
 }

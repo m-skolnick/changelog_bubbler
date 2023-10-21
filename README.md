@@ -36,6 +36,8 @@ This builder works as follows:
         1. Changelog diff from package
 
 1. Create a file with the information gathered above
+    1. By default, a file named `changelog_bubbled.md` will be created
+    1. Pass
 
 ## Usage
 1. Add `changelog_bubbler` to `dev_dependencies` in `pubspec.yaml`
@@ -104,6 +106,16 @@ dart pub run changelog_bubbler --previous-ref 8762db
 example:
 ```
 dart pub run changelog_bubbler --previous-ref v2.0.0
+```
+
+### JSON output
+By default the changelog will generate a `changelog_bubbled.g.md` file. 
+
+To generate a json file as well, pass the parameter `--json-output=<your_path>`.
+
+example:
+```
+dart pub run changelog_bubbler --json-output ./my_changelog_path.json
 ```
 
 ### Output File

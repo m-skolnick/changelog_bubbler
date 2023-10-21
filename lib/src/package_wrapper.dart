@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:changelog_bubbler/src/dependency_type.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/platform_wrapper.dart';
-import 'package:meta/meta.dart';
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
 import 'package:path/path.dart' as p;
 
@@ -24,6 +25,18 @@ class PackageWrapper {
 
   bool sameVersion(PackageWrapper other) {
     return version == other.version;
+  }
+
+  String? getChangelog() {
+    final changelogFile = File(p.join(
+      getPubCachePath(),
+      'CHANGELOG.md',
+    ));
+    if (!changelogFile.existsSync()) {
+      return null;
+    }
+
+    return changelogFile.readAsStringSync();
   }
 
 // from: dart.cloudsmith.io/alkami/flutter/
@@ -53,7 +66,6 @@ class PackageWrapper {
     return _url;
   }
 
-  @visibleForTesting
   String? get url {
     if (package.description is HostedPackageDescription) {
       return (package.description as HostedPackageDescription).url;
