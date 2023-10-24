@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:changelog_bubbler/src/change_type.dart';
 import 'package:changelog_bubbler/src/dependency_type.dart';
 import 'package:changelog_bubbler/src/package_wrapper.dart';
-import 'package:path/path.dart' as p;
 
 class DependencyPair {
   final PackageWrapper? previous;

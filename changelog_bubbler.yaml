@@ -1,0 +1,7 @@
+# Any of these templates can be overriden.
+# By default, they will use the bundled html files
+template-paths:
+  root_template: "./root_template.html"
+  dependency_added_or_removed_template: "./dependency_added_or_removed_template.html"
+  dependency_changed_template: "./dependency_changed_template.html"
+  no_changed_dependencies_template: "./no_changed_dependencies_template.html"

@@ -3,59 +3,45 @@ import 'dart:io';
 
 import 'package:changelog_bubbler/src/change_manager.dart';
 import 'package:changelog_bubbler/src/dependency_pair.dart';
-import 'package:changelog_bubbler/src/template_manager.dart';
+import 'package:changelog_bubbler/src/template/template_manager.dart';
 import 'package:path/path.dart' as p;
 
 class ChangelogBuilder {
   // Manages the differences between the previous dependencies and current
-  final ChangeManager changeManager;
+  final ChangeManager _changeManager;
 
   /// The name of the changelog we should be searching for
   ///   This can be a value passed by the user. Check CLI input for defaults.
-  final String changelogName;
+  final String _changelogName;
 
-  /// The top level template
-  final TemplateManager changelogTemplate;
-
-  /// Second level template used for dependency groups
-  final TemplateManager depGroupTemplate;
-
-  /// Lowest level template used for templating a changed dependency
-  final TemplateManager depChangedTemplate;
-
-  /// Lowest level template used for templating an added or deleted dependency
-  final TemplateManager depAddedOrRemovedTemplate;
-
-  /// Used when the app update had no dependency changes
-  final TemplateManager noChangedDependenciesTemplate;
+  /// Manages all templates, and where the templates are loaded from
+  final TemplateManager _templateManager;
 
   ChangelogBuilder({
-    required this.changeManager,
-    required this.changelogName,
-    required this.changelogTemplate,
-    required this.depGroupTemplate,
-    required this.depChangedTemplate,
-    required this.depAddedOrRemovedTemplate,
-    required this.noChangedDependenciesTemplate,
-  });
+    required ChangeManager changeManager,
+    required TemplateManager templateManager,
+    required String changelogName,
+  })  : _changeManager = changeManager,
+        _templateManager = templateManager,
+        _changelogName = changelogName;
 
   String buildJsonOutput() {
     final changedDepsList =
-        changeManager.changedDeps.map((e) => e.toJson()).toList();
+        _changeManager.changedDeps.map((e) => e.toJson()).toList();
     final encoder = JsonEncoder.withIndent('  ');
     return encoder.convert(changedDepsList);
   }
 
   Future<String> buildChangelogFromTemplates() async {
-    return changelogTemplate.replaceAll({
-      '{{root_package_name}}': changeManager.previous.pubspec.name,
+    return _templateManager.root_template.replaceAll({
+      '{{root_package_name}}': _changeManager.previous.pubspec.name,
       '{{root_previous_version}}':
-          changeManager.previous.pubspec.version.toString(),
+          _changeManager.previous.pubspec.version.toString(),
       '{{root_current_version}}':
-          changeManager.current.pubspec.version.toString(),
+          _changeManager.current.pubspec.version.toString(),
       '{{root_changelog_diff}}': _getChangelogDiff(
-        currentPath: changeManager.current.repoPath,
-        previousPath: changeManager.previous.repoPath,
+        currentPath: _changeManager.current.repoPath,
+        previousPath: _changeManager.previous.repoPath,
       ),
       '{{dependency_groups}}': _buildGroupsFromTemplate(),
     });
@@ -64,16 +50,18 @@ class ChangelogBuilder {
   String _buildGroupsFromTemplate() {
     final stringBuffer = StringBuffer();
 
-    if (changeManager.groups.isEmpty) {
-      return noChangedDependenciesTemplate.unalteredTemplate;
+    if (_changeManager.groups.isEmpty) {
+      return _templateManager
+          .no_changed_dependencies_template.unalteredTemplate;
     }
 
-    for (final group in changeManager.groups.entries) {
+    for (final group in _changeManager.groups.entries) {
       final dependencyListBuffer = StringBuffer();
       for (final depPair in group.value) {
         dependencyListBuffer.write(_buildInvidualDepFromTemplate(depPair));
       }
-      final substitutedTemplate = depGroupTemplate.replaceAll({
+      final substitutedTemplate =
+          _templateManager.dependency_group_template.replaceAll({
         '{{group_name}}': group.key,
         '{{changed_dependencies}}': dependencyListBuffer.toString(),
       });
@@ -89,7 +77,7 @@ class ChangelogBuilder {
     final previous = depPair.previous;
 
     if (current != null && previous != null) {
-      return depChangedTemplate.replaceAll({
+      return _templateManager.dependency_changed_template.replaceAll({
         '{{package_name}}': depPair.name,
         '{{previous_version}}': previous.version.toString(),
         '{{current_version}}': current.version.toString(),
@@ -101,7 +89,7 @@ class ChangelogBuilder {
       });
     }
 
-    return depAddedOrRemovedTemplate.replaceAll({
+    return _templateManager.dependency_added_or_removed_template.replaceAll({
       '{{package_name}}': depPair.name,
       '{{change_type}}': depPair.changeType.name,
       '{{dependency_type}}': depPair.dependencyType.name,
@@ -112,17 +100,17 @@ class ChangelogBuilder {
     required String previousPath,
     required String currentPath,
   }) {
-    final previousChangelog = File(p.join(previousPath, changelogName));
-    final currentChangelog = File(p.join(currentPath, changelogName));
+    final previousChangelog = File(p.join(previousPath, _changelogName));
+    final currentChangelog = File(p.join(currentPath, _changelogName));
 
     if (!previousChangelog.existsSync() || !currentChangelog.existsSync()) {
-      return '$changelogName not found';
+      return '$_changelogName not found';
     }
     final previousString = previousChangelog.readAsStringSync();
     final currentString = currentChangelog.readAsStringSync();
     final diff = currentString.replaceFirst(previousString, '');
     if (diff.isEmpty) {
-      return '$changelogName did not contain changes';
+      return '$_changelogName did not contain changes';
     }
 
     return diff;

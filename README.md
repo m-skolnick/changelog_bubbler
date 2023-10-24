@@ -37,7 +37,7 @@ This builder works as follows:
 
 1. Create a file with the information gathered above
     1. By default, a file named `changelog_bubbled.md` will be created
-    1. Pass
+    1. See the advanced section for how to generate a json list of changed dependencies
 
 ## Usage
 1. Add `changelog_bubbler` to `dev_dependencies` in `pubspec.yaml`

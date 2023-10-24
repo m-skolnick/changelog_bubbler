@@ -1,11 +1,13 @@
 import 'package:changelog_bubbler/src/bubbler_shell.dart';
 import 'package:changelog_bubbler/src/change_manager.dart';
 import 'package:changelog_bubbler/src/changelog_builder.dart';
+import 'package:changelog_bubbler/src/config_manager.dart';
 import 'package:changelog_bubbler/src/dependency_parser.dart';
 import 'package:changelog_bubbler/src/dependency_type.dart';
 import 'package:changelog_bubbler/src/global_dependencies.dart';
 import 'package:changelog_bubbler/src/package_wrapper.dart';
-import 'package:changelog_bubbler/src/template_manager.dart';
+import 'package:changelog_bubbler/src/template/template.dart';
+import 'package:changelog_bubbler/src/template/template_manager.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
@@ -24,6 +26,27 @@ void main() {
       ..dependencies = _previousDependencyMap;
     final parserCurrent = DependencyParser(repoPath: d.sandbox)
       ..dependencies = _currentDependencyMap;
+    final templateManager = TemplateManager(ConfigManager())
+      ..root_template = Template(
+        '',
+        templateForTesting: '{{dependency_groups}}',
+      )
+      ..dependency_group_template = Template(
+        '',
+        templateForTesting: '{{group_name}}',
+      )
+      ..dependency_changed_template = Template(
+        '',
+        templateForTesting: '',
+      )
+      ..dependency_added_or_removed_template = Template(
+        '',
+        templateForTesting: '',
+      )
+      ..no_changed_dependencies_template = Template(
+        '',
+        templateForTesting: '',
+      );
 
     final diffBuilder = ChangelogBuilder(
       changeManager: ChangeManager(
@@ -31,31 +54,7 @@ void main() {
         current: parserCurrent,
       ),
       changelogName: 'changelogName',
-      changelogTemplate: TemplateManager(
-        '',
-        isBundledTemplate: true,
-        templateForTesting: '{{dependency_groups}}',
-      ),
-      depGroupTemplate: TemplateManager(
-        '',
-        isBundledTemplate: true,
-        templateForTesting: '{{group_name}}',
-      ),
-      depChangedTemplate: TemplateManager(
-        '',
-        isBundledTemplate: true,
-        templateForTesting: '',
-      ),
-      depAddedOrRemovedTemplate: TemplateManager(
-        '',
-        isBundledTemplate: true,
-        templateForTesting: '',
-      ),
-      noChangedDependenciesTemplate: TemplateManager(
-        '',
-        isBundledTemplate: true,
-        templateForTesting: '',
-      ),
+      templateManager: templateManager,
     );
 
     final generatedDiff = await diffBuilder.buildChangelogFromTemplates();
