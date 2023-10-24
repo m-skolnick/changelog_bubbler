@@ -20,7 +20,9 @@ PackageWrapper _mockPackageWrapper({Version? version, String? changelog}) {
   when(() => mockPackageWrapper.dependencyType).thenReturn(
     DependencyType.directMain,
   );
-  when(() => mockPackageWrapper.getChangelog()).thenReturn(
+  when(() =>
+          mockPackageWrapper.getChangelog(changelogName: 'mockChangelogName'))
+      .thenReturn(
     changelog ?? 'mockChangelog',
   );
 
@@ -49,7 +51,7 @@ previous changelog
       ),
     );
 
-    final result = pair.toJson();
+    final result = pair.toJson(changelogName: 'mockChangelogName');
     expect(result, {
       'name': 'mockName',
       'dependencyType': 'direct main',
@@ -69,7 +71,7 @@ current changelog
       current: _mockPackageWrapper(version: Version.parse('2.0.0')),
     );
 
-    final result = pair.toJson();
+    final result = pair.toJson(changelogName: 'mockChangelogName');
     expect(result, {
       'name': 'mockName',
       'dependencyType': 'direct main',
@@ -87,7 +89,7 @@ current changelog
       previous: _mockPackageWrapper(version: Version.parse('1.0.0')),
     );
 
-    final result = pair.toJson();
+    final result = pair.toJson(changelogName: 'mockChangelogName');
     expect(result, {
       'name': 'mockName',
       'dependencyType': 'direct main',

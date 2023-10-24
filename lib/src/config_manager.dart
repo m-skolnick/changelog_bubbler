@@ -14,12 +14,14 @@ class ConfigManager {
   late final String no_changed_dependencies_template;
 
   late final String _bundlePath;
-  late final Map<String, dynamic>? _workingDirYaml;
-  late final Map<String, dynamic> _bundledYaml;
+  late final String _workingDir;
+  late final YamlMap? _workingDirYaml;
+  late final YamlMap _bundledYaml;
   final _configFileName = 'changelog_bubbler.yaml';
 
   void loadConfig({required String workingDir}) {
-    _workingDirYaml = _getWorkingDirYaml(workingDir);
+    _workingDir = workingDir;
+    _workingDirYaml = _getWorkingDirYaml();
     _bundledYaml = _getBundledYaml();
 
     loadConfigValues();
@@ -45,7 +47,8 @@ class ConfigManager {
   }
 
   String _formTemplatePath(String pathKey) {
-    final pathFromCurrentDirYaml = _workingDirYaml?[pathKey] as String?;
+    final pathFromCurrentDirYaml =
+        _workingDirYaml?['template-paths']?[pathKey] as String?;
     if (pathFromCurrentDirYaml != null) {
       return pathFromCurrentDirYaml;
     }
@@ -54,25 +57,26 @@ class ConfigManager {
     //    form the path using the bundle path and the value from our bundled config
     return p.join(
       _bundlePath,
-      'template',
-      _bundledYaml[pathKey] as String,
+      _bundledYaml['template-paths'][pathKey] as String,
     );
   }
 
-  Map<String, dynamic>? _getWorkingDirYaml(String workingDir) {
+  YamlMap? _getWorkingDirYaml() {
     final yamlFromWorkingDir = File(p.join(
-      workingDir,
+      _workingDir,
       _configFileName,
     ));
 
     if (!yamlFromWorkingDir.existsSync()) {
+      print(
+        'No $_configFileName found in $_workingDir. Proceeding with default configs.',
+      );
       return null;
     }
-    return loadYaml(yamlFromWorkingDir.readAsStringSync())
-        as Map<String, dynamic>;
+    return loadYaml(yamlFromWorkingDir.readAsStringSync()) as YamlMap;
   }
 
-  Map<String, dynamic> _getBundledYaml() {
+  YamlMap _getBundledYaml() {
     // If we're using the bundled yaml, we need to do
     // some file path manipulation to resolve the uri to the asset folder
     // inside the changelog_bubbler package
@@ -83,6 +87,6 @@ class ConfigManager {
       throw Exception('Failed to load $_configFileName');
     }
 
-    return loadYaml(yamlFromBundle.readAsStringSync()) as Map<String, dynamic>;
+    return loadYaml(yamlFromBundle.readAsStringSync()) as YamlMap;
   }
 }

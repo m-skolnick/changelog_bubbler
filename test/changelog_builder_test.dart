@@ -48,7 +48,7 @@ void main() {
         templateForTesting: '',
       );
 
-    final diffBuilder = ChangelogBuilder(
+    final changelogBuilder = ChangelogBuilder(
       changeManager: ChangeManager(
         previous: parserPrevious,
         current: parserCurrent,
@@ -57,7 +57,7 @@ void main() {
       templateManager: templateManager,
     );
 
-    final generatedDiff = await diffBuilder.buildChangelogFromTemplates();
+    final generatedDiff = await changelogBuilder.buildChangelogFromTemplates();
     expect(generatedDiff, contains('hosted_url'));
     expect(generatedDiff, contains('git_url'));
     expect(generatedDiff, contains('pub_dev_url'));

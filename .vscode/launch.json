@@ -9,7 +9,7 @@
             "request": "launch",
             "type": "dart",
             "program": "bin/changelog_bubbler.dart",
-            "args": ["--previous-ref", "8762db9"]
+            "args": ["--previous-ref", "8762db9", "--no-dev"]
         }
     ]
 }

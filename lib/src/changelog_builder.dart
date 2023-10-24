@@ -26,8 +26,9 @@ class ChangelogBuilder {
         _changelogName = changelogName;
 
   String buildJsonOutput() {
-    final changedDepsList =
-        _changeManager.changedDeps.map((e) => e.toJson()).toList();
+    final changedDepsList = _changeManager.changedDeps
+        .map((e) => e.toJson(changelogName: _changelogName))
+        .toList();
     final encoder = JsonEncoder.withIndent('  ');
     return encoder.convert(changedDepsList);
   }

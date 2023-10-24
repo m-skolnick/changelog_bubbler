@@ -28,9 +28,13 @@ class DependencyPair {
   DependencyType get dependencyType =>
       (previous?.dependencyType ?? current?.dependencyType)!;
 
-  String? getChangelogDiff() {
-    final previousChangelog = previous?.getChangelog();
-    final currentChangelog = current?.getChangelog();
+  String? getChangelogDiff({required String changlogName}) {
+    final previousChangelog = previous?.getChangelog(
+      changelogName: changlogName,
+    );
+    final currentChangelog = current?.getChangelog(
+      changelogName: changlogName,
+    );
 
     if (previousChangelog == null || currentChangelog == null) {
       return null;
@@ -44,7 +48,7 @@ class DependencyPair {
     return diff;
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({required String changelogName}) {
     return {
       'name': name,
       'dependencyType': dependencyType.name,
@@ -52,7 +56,7 @@ class DependencyPair {
       'url': url,
       'previousVersion': previous?.version,
       'currentVersion': current?.version,
-      'changelogDiff': getChangelogDiff(),
+      'changelogDiff': getChangelogDiff(changlogName: changelogName),
     };
   }
 }

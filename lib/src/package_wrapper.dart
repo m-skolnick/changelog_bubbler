@@ -27,11 +27,8 @@ class PackageWrapper {
     return version == other.version;
   }
 
-  String? getChangelog() {
-    final changelogFile = File(p.join(
-      getPubCachePath(),
-      'CHANGELOG.md',
-    ));
+  String? getChangelog({required String changelogName}) {
+    final changelogFile = File(p.join(getPubCachePath(), changelogName));
     if (!changelogFile.existsSync()) {
       return null;
     }
