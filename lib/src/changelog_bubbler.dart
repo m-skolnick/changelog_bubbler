@@ -137,20 +137,20 @@ class ChangelogBubbler extends CommandRunner<int> {
       Logger.progressSuccess(prompt);
 
       if (jsonOutputArg != null) {
-        prompt = 'Writing json output to file';
+        prompt = 'Writing json output to file ';
         Logger.progressStart(prompt);
         final outputFile = File(jsonOutputArg);
         final jsonOutput = changelogBuilder.buildJsonOutput();
         outputFile.writeAsStringSync(jsonOutput);
-        Logger.progressSuccess(prompt);
+        Logger.progressSuccess(prompt + outputFile.absolute.path);
       }
 
-      final outputFile = File(outputArg);
-      prompt = 'Writing diff to file ${outputFile.absolute}';
+      prompt = 'Writing diff to file ';
       Logger.progressStart(prompt);
+      final outputFile = File(outputArg);
       final diff = await changelogBuilder.buildChangelogFromTemplates();
       outputFile.writeAsStringSync(diff);
-      Logger.progressSuccess(prompt);
+      Logger.progressSuccess(prompt + outputFile.absolute.path);
     } on UsageException catch (e) {
       print(e.message);
       print('');

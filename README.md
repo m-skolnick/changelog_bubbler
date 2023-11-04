@@ -115,7 +115,7 @@ To generate a json file as well, pass the parameter `--json-output=<your_path>`.
 
 example:
 ```
-dart pub run changelog_bubbler --json-output ./my_changelog_path.json
+dart pub run changelog_bubbler --json-output my_path/my_changelog_name.json
 ```
 
 ### Output File
@@ -129,18 +129,13 @@ dart pub run changelog_bubbler --output MY_COOL_CHANGELOG_NAME.md
 ### Templates
 All output is built based on templates found in the [Template Folder][template_folder].
 
-Any of the templates can be overriden by passing a path option.
+Any of the templates can be overriden by adding a [changelog_bubbler.yaml][bundled_config] file to the root of your package.
 
-example:
-```
-dart pub run changelog_bubbler --changelog-template-path '/Users/micaiah.skolnick/Repos/alkami/changelog_bubbler/asset_test/changelog_template.html'
-```
-
-Run `dart pub run changelog_bubbler --help` to see a list of all possible path overrides.
 
 ## Maintainers
 
 - [Micaiah Skolnick](https://github.com/m-skolnick)
 
+[bundled_config]: https://github.com/m-skolnick/changelog_bubbler/blob/main/changelog_bubbler.yaml
 [example_app_output]: https://github.com/m-skolnick/changelog_bubbler/blob/main/example/my_output_file.md
 [template_folder]: https://github.com/m-skolnick/changelog_bubbler/blob/main/template/
